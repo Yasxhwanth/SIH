@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ForensiX — Forensic Workstation</title>
+  <meta name="description" content="Digital Forensics &amp; Secure Sanitization Platform — NTRO SIH PS-26149" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- ── Carbon UI Shell Global Header (48px) ────────────────────────── -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <a class="topbar-brand" href="#">
+          <span class="brand-title">ForensiX</span>
+        </a>
+        <div class="topbar-breadcrumb">
+          <span>/</span>
+          <strong id="breadcrumb-page">Dashboard</strong>
+        </div>
+        <div class="case-pill">
+          <span class="case-pill-tag">CASE:</span>
+          <span id="top-case-id">CASE-2026-NTRO-094</span>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="security-mode-badge">
+          <span class="status-dot"></span>
+          <span>Write-Blocked</span>
+        </div>
+        <div class="live-clock mono-font" id="live-clock">UTC 00:00:00</div>
+      </div>
+    </header>
+
+    <div class="shell-body">
+      <!-- ── Carbon Left Side Navigation (240px) ───────────────────────── -->
+      <nav class="sidebar" id="sidebar">
+        <div class="sidebar-nav-container">
+          <div class="nav-category-header">Operations</div>
+          <ul class="nav-list">
+            <li class="nav-item active" data-page="dashboard">
+              <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg></span>
+              <span class="nav-label">Dashboard</span>
+            </li>
+            <li class="nav-item" data-page="carver">
+              <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6"/><path d="M8 11h6"/></svg></span>
+              <span class="nav-label">File Recovery</span>
+              <span class="nav-badge" id="badge-carver" style="display:none">0</span>
+            </li>
+            <li class="nav-item" data-page="imager">
+              <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/><path d="M12 2a10 10 0 0 1 10 10"/></svg></span>
+              <span class="nav-label">Disk Imager</span>
+              <span class="nav-badge accent">1:1</span>
+            </li>
+            <li class="nav-item" data-page="drive-eraser">
+              <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span>
+              <span class="nav-label">Drive Sanitizer</span>
+            </li>
+            <li class="nav-item" data-page="file-eraser">
+              <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></span>
+              <span class="nav-label">File Shredder</span>
+            </li>
+          </ul>
+
+          <div class="nav-category-header">Forensics &amp; Verification</div>
+          <ul class="nav-list">
+            <li class="nav-item" data-page="adversarial">
+              <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></span>
+              <span class="nav-label">Adversarial Lab</span>
+            </li>
+            <li class="nav-item" data-page="case">
+              <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></span>
+              <span class="nav-label">Chain of Custody</span>
+            </li>
+            <li class="nav-item" data-page="audit">
+              <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+              <span class="nav-label">Audit Ledger</span>
+            </li>
+            <li class="nav-item" data-page="report">
+              <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+              <span class="nav-label">Certificates</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="chain-status-indicator">
+            <span class="chain-dot" id="chain-dot"></span>
+            <span id="chain-status-text">Ledger OK</span>
+          </div>
+          <div>Host: <span id="host-name">DESKTOP-FORENSIC</span></div>
+        </div>
+      </nav>
+
+      <!-- ── Main Workspace ────────────────────────────────────────────── -->
+      <div class="main-wrapper">
+        <main class="main-viewport">
+
+          <!-- ═════════════════════════════════════════════════════════════════
+               PAGE 1: DASHBOARD
+               ═════════════════════════════════════════════════════════════════ -->
+          <section class="page active" id="page-dashboard">
+            <div class="page-header">
+              <h1>Operations Dashboard</h1>
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-value" id="dash-stat-scans">0</div>
+                <div class="stat-label">Carve Sessions</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-value" id="dash-stat-recovered">0</div>
+                <div class="stat-label">Artifacts Recovered</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-value" id="dash-stat-wipes">0</div>
+                <div class="stat-label">Sanitizations</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-value" id="dash-stat-ledger">0</div>
+                <div class="stat-label">Ledger Blocks</div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <h3>Connected Storage Devices</h3>
+                <button class="btn btn-secondary small" onclick="refreshDevices()">Refresh</button>
+              </div>
+              <div class="table-wrapper">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Endpoint</th>
+                      <th>Volume</th>
+                      <th>Capacity</th>
+                      <th>Type</th>
+                      <th>Filesystem</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="device-tbody">
+                    <tr><td colspan="7" style="text-align:center; color: var(--cds-text-helper); padding: 20px;">Scanning storage devices…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═════════════════════════════════════════════════════════════════
+               PAGE 2: FILE RECOVERY (CARVER)
+               ═════════════════════════════════════════════════════════════════ -->
+          <section class="page" id="page-carver">
+            <div class="page-header">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <h1>File Recovery Workstation</h1>
+                  <div style="font-size: 12px; color: var(--cds-text-secondary); margin-top: 2px;">Dual-Engine Multi-Scan · Deep Signature Carving &amp; Filesystem Inode Ingestion</div>
+                </div>
+                <div style="display:flex; gap: 8px;">
+                  <button class="btn btn-secondary small" onclick="createDemoImagePrompt()">Generate Test Target</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dual Recovery Mode Switcher (Disk Drill Style) -->
+            <div class="recovery-mode-switcher">
+              <button class="mode-tab active" id="tab-mode-carve" onclick="switchRecoveryMode('carve')">
+                <span class="mode-tab-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
+                  Deep Sector Carving Engine
+                </span>
+                <span class="mode-tab-desc">Raw byte signature carving, graph-theoretic bi-fragment gap assembly &amp; LBA cluster entropy</span>
+              </button>
+              <button class="mode-tab" id="tab-mode-mft" onclick="switchRecoveryMode('mft')">
+                <span class="mode-tab-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  NTFS $MFT &amp; Inode Tree (Quick Scan)
+                </span>
+                <span class="mode-tab-desc">Recovers original filenames, folder hierarchy, MACB timestamps &amp; timestomp anomaly alerts</span>
+              </button>
+            </div>
+
+            <!-- Deep Carver Configuration Panel -->
+            <div class="panel" id="carve-config-panel">
+              <div class="panel-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <h3>Carve Configuration</h3>
+                  <span class="tag-pill blue">Bi-Fragment Gap Enabled</span>
+                  <span class="tag-pill green" style="font-weight: 600;">100+ Signatures · 420+ Formats</span>
+                </div>
+                <div>
+                  <button class="btn btn-secondary small" onclick="openSignaturesModal()" style="display: flex; align-items: center; gap: 6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    Browse 420+ Signatures
+                  </button>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="field-group">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label class="field-label" style="margin-bottom: 0;">Target Source (Connected Storage Volumes)</label>
+                    <button class="btn btn-ghost small" onclick="refreshDevices()" style="padding: 2px 8px; font-size: 11px; height: 22px; display: inline-flex; align-items: center; gap: 4px;" title="Rescan hardware ports and mounted volumes">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                      Rescan Drives
+                    </button>
+                  </div>
+                  <div id="carve-drive-chips" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;"></div>
+                  <div class="input-row">
+                    <input type="text" class="field-input" id="carve-path" placeholder="Target volume or image (e.g. \\.\E:)" />
+                    <button class="btn btn-secondary" onclick="browseCarveImage()">Browse…</button>
+                    <button class="btn btn-primary" id="btn-start-carve" onclick="startCarve()">Start Deep Carve</button>
+                    <button class="btn btn-danger" id="btn-cancel-carve" onclick="cancelCarve()" style="display:none">Cancel</button>
+                  </div>
+                  <div style="display: flex; gap: 16px; margin-top: 10px; align-items: center; flex-wrap: wrap;">
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="carve-sector-align" checked />
+                      <span><strong>Sector-Aligned (512B)</strong> · Enforce physical block alignment</span>
+                    </label>
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="carve-strict-validation" checked />
+                      <span><strong>Strict Validation</strong> · Discard corrupted candidates</span>
+                    </label>
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="carve-fragment-stitch" checked />
+                      <span><strong>SmartCarve Bi-Fragment Stitching</strong> · Reassemble broken cluster gaps via KL Divergence</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Telemetry Strip -->
+                <div class="telemetry-strip" id="carve-telemetry" style="display:none">
+                  <div class="telemetry-item">
+                    <span class="telemetry-label">Status:</span>
+                    <span class="telemetry-val" id="carve-status-text">Scanning…</span>
+                  </div>
+                  <div class="telemetry-item">
+                    <span class="telemetry-label">Speed:</span>
+                    <span class="telemetry-val" id="carve-speed">0 MB/s</span>
+                  </div>
+                  <div class="telemetry-item">
+                    <span class="telemetry-label">Processed:</span>
+                    <span class="telemetry-val" id="carve-scanned-bytes">0 MB / 0 MB (0%)</span>
+                  </div>
+                  <div class="telemetry-item">
+                    <span class="telemetry-label">Artifacts:</span>
+                    <span class="telemetry-val" id="carve-hits-count">0</span>
+                  </div>
+                  <div class="telemetry-item">
+                    <span class="telemetry-label">Elapsed:</span>
+                    <span class="telemetry-val mono-font" id="carve-elapsed">0:00</span>
+                  </div>
+                  <div class="telemetry-item">
+                    <span class="telemetry-label">ETA:</span>
+                    <span class="telemetry-val mono-font" id="carve-eta">—</span>
+                  </div>
+                </div>
+
+                <!-- Sector Cluster Heatmap -->
+                <div class="sector-map-container" id="carve-sector-map-box">
+                  <div class="sector-map-header">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                      <span style="font-weight: 600;">LBA Cluster Map</span>
+                      <span class="tag-pill blue mono-font" id="carve-active-lba">LBA: 0x00000000</span>
+                      <span class="tag-pill high mono-font" id="carve-hit-blocks-badge">0 Hits</span>
+                    </div>
+                    <div class="sector-legend">
+                      <div class="legend-item"><span class="legend-dot unallocated"></span> Pending</div>
+                      <div class="legend-item"><span class="legend-dot scanned"></span> Clean</div>
+                      <div class="legend-item"><span class="legend-dot scanning"></span> Reading</div>
+                      <div class="legend-item"><span class="legend-dot carved"></span> Artifact</div>
+                    </div>
+                  </div>
+
+                  <div class="sector-metrics-bar" id="carve-sector-metrics-bar">
+                    <div class="sector-metric-cell">
+                      <span class="metric-label">Progression</span>
+                      <span class="metric-value mono-font" id="metric-sector-count">0 / 0 (0.0%)</span>
+                    </div>
+                    <div class="sector-metric-cell">
+                      <span class="metric-label">LBA Range</span>
+                      <span class="metric-value mono-font" id="metric-lba-range">0x00000000 – 0x00000000</span>
+                    </div>
+                    <div class="sector-metric-cell">
+                      <span class="metric-label">Cluster Blocks</span>
+                      <span class="metric-value mono-font" id="metric-cluster-blocks">0 / 140</span>
+                    </div>
+                    <div class="sector-metric-cell">
+                      <span class="metric-label">Hit Clusters</span>
+                      <span class="metric-value mono-font" id="metric-hit-clusters" style="color: var(--cds-support-success);">0</span>
+                    </div>
+                  </div>
+
+                  <div class="sector-grid" id="carve-sector-grid"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MFT Inode Scanner Panel (Quick Scan) -->
+            <div class="panel" id="mft-config-panel" style="display: none;">
+              <div class="panel-header">
+                <h3>NTFS Master File Table ($MFT) Ingestion</h3>
+                <span class="tag-pill purple">SANS FOR508 Inode Standard</span>
+              </div>
+              <div class="panel-body">
+                <div class="field-group">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label class="field-label" style="margin-bottom: 0;">Target Volume or Image</label>
+                    <button class="btn btn-ghost small" onclick="refreshDevices()" style="padding: 2px 8px; font-size: 11px; height: 22px; display: inline-flex; align-items: center; gap: 4px;" title="Rescan hardware ports and mounted volumes">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                      Rescan Drives
+                    </button>
+                  </div>
+                  <div id="mft-drive-chips" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;"></div>
+                  <div class="input-row">
+                    <input type="text" class="field-input" id="mft-path" placeholder="Target volume or image (e.g. \\.\E: or evidence.img)" />
+                    <button class="btn btn-secondary" onclick="browseMftImage()">Browse…</button>
+                    <button class="btn btn-primary" id="btn-start-mft" onclick="startMftScan()">Scan $MFT Inodes</button>
+                  </div>
+                  <div style="display: flex; gap: 16px; margin-top: 10px; align-items: center; flex-wrap: wrap;">
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="mft-deleted-only" onchange="filterMftResults()" />
+                      <span><strong>Deleted Records Only</strong> · Filter out active filesystem files</span>
+                    </label>
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="mft-timestomp-only" onchange="filterMftResults()" />
+                      <span><strong>Timestomp Anomalies Only</strong> · Show anti-forensic timestamp tampering</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- MFT Summary Metrics Strip -->
+                <div class="stats-grid" id="mft-metrics-strip" style="display: none; margin-top: 16px; margin-bottom: 0;">
+                  <div class="stat-card">
+                    <div class="stat-value" id="mft-stat-scanned">0</div>
+                    <div class="stat-label">Records Ingested</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value" id="mft-stat-active" style="color: var(--cds-support-success);">0</div>
+                    <div class="stat-label">Active Files</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value" id="mft-stat-deleted" style="color: var(--cds-danger-01);">0</div>
+                    <div class="stat-label">Deleted Files (Recoverable)</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value" id="mft-stat-timestomps" style="color: var(--cds-support-caution);">0</div>
+                    <div class="stat-label">Timestomp Anomalies</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MFT Results Panel -->
+            <div class="panel" id="mft-results-panel" style="display: none;">
+              <div class="panel-header">
+                <h3>Filesystem Inode Records (<span id="mft-results-count-badge">0</span>)</h3>
+                <div class="panel-actions">
+                  <input type="text" class="field-input small" id="search-mft" placeholder="Filter filename or record #…" oninput="filterMftResults()" style="width: 200px;" />
+                  <button class="btn btn-secondary small" onclick="exportMftReport()">Export Inode Table</button>
+                </div>
+              </div>
+              <div class="table-wrapper">
+                <table class="data-table" id="mft-table">
+                  <thead>
+                    <tr>
+                      <th>Record #</th>
+                      <th>Status</th>
+                      <th>Original Filename</th>
+                      <th>Size</th>
+                      <th>Stream Storage</th>
+                      <th>Created (MACB)</th>
+                      <th>Modified (MACB)</th>
+                      <th>Timestomp Analysis</th>
+                      <th>Extraction</th>
+                    </tr>
+                  </thead>
+                  <tbody id="mft-tbody">
+                    <tr><td colspan="9" style="text-align:center; color: var(--cds-text-helper); padding: 24px;">Click "Scan $MFT Inodes" to parse filesystem records.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Carved Results Panel (Disk Drill Triage Parity) -->
+            <div class="panel" id="carve-results-panel">
+              <div class="panel-header">
+                <h3>Recovered Artifacts (<span id="results-count-badge">0</span>)</h3>
+                <div class="panel-actions">
+                  <input type="text" class="field-input small" id="search-carve" placeholder="Filter extension, ID, hash…" oninput="filterCarveResults()" style="width: 170px;" />
+                  <select class="field-input small" id="filter-confidence" onchange="filterCarveResults()">
+                    <option value="">All Probabilities</option>
+                    <option value="high">High (>90%)</option>
+                    <option value="good">Good (>75%)</option>
+                    <option value="stitched">Stitched Fragments</option>
+                  </select>
+                  <button class="btn btn-primary small" id="btn-export-selected" onclick="exportSelectedArtifacts()" disabled>
+                    Recover Selected (<span id="selected-carve-count">0</span>)
+                  </button>
+                  <button class="btn btn-secondary small" onclick="exportCarveReport()">Export Ledger</button>
+                </div>
+              </div>
+
+              <!-- Disk Drill Style Category Triage Pills -->
+              <div class="category-pills-bar">
+                <button class="cat-pill active" data-cat="" onclick="setRecoveryCategory('')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                  All (<span id="cat-count-all">0</span>)
+                </button>
+                <button class="cat-pill" data-cat="Image" onclick="setRecoveryCategory('Image')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  Pictures (<span id="cat-count-image">0</span>)
+                </button>
+                <button class="cat-pill" data-cat="Video" onclick="setRecoveryCategory('Video')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                  Video (<span id="cat-count-video">0</span>)
+                </button>
+                <button class="cat-pill" data-cat="Audio" onclick="setRecoveryCategory('Audio')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                  Audio (<span id="cat-count-audio">0</span>)
+                </button>
+                <button class="cat-pill" data-cat="Document" onclick="setRecoveryCategory('Document')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  Documents (<span id="cat-count-doc">0</span>)
+                </button>
+                <button class="cat-pill" data-cat="Database" onclick="setRecoveryCategory('Database')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                  Databases (<span id="cat-count-db">0</span>)
+                </button>
+                <button class="cat-pill" data-cat="Archive" onclick="setRecoveryCategory('Archive')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+                  Archives (<span id="cat-count-archive">0</span>)
+                </button>
+                <button class="cat-pill" data-cat="Executable" onclick="setRecoveryCategory('Executable')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+                  Executables (<span id="cat-count-exe">0</span>)
+                </button>
+                <button class="cat-pill" data-cat="Secret" onclick="setRecoveryCategory('Secret')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  Keys/Credentials (<span id="cat-count-secret">0</span>)
+                </button>
+              </div>
+
+              <div class="table-wrapper">
+                <table class="data-table" id="carve-table">
+                  <thead>
+                    <tr>
+                      <th class="checkbox-cell"><input type="checkbox" id="carve-select-all" onchange="toggleSelectAllCarve(this.checked)" /></th>
+                      <th style="width:36px;">Type</th>
+                      <th>Format</th>
+                      <th>Artifact ID</th>
+                      <th>LBA Offset / Run</th>
+                      <th>Size</th>
+                      <th>Entropy (H)</th>
+                      <th>Confidence &amp; Odds</th>
+                      <th>SHA-256 Digest</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="carve-tbody">
+                    <tr><td colspan="10" style="text-align:center; color: var(--cds-text-helper); padding: 24px;">No scan performed yet.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═════════════════════════════════════════════════════════════════
+               PAGE 3: FORENSIC BIT-STREAM DISK IMAGER
+               ═════════════════════════════════════════════════════════════════ -->
+          <section class="page" id="page-imager">
+            <div class="page-header">
+              <h1>Disk Imager</h1>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <h3>Acquisition Configuration</h3>
+              </div>
+              <div class="panel-body">
+                <div class="field-group">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label class="field-label" style="margin-bottom: 0;">Source Storage Medium</label>
+                    <button class="btn btn-ghost small" onclick="refreshDevices()" style="padding: 2px 8px; font-size: 11px; height: 22px; display: inline-flex; align-items: center; gap: 4px;" title="Rescan hardware ports and mounted volumes">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                      Rescan Drives
+                    </button>
+                  </div>
+                  <div id="imager-drive-chips" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;"></div>
+                  <div class="input-row">
+                    <input type="text" class="field-input" id="imager-source-path" placeholder="Source volume path" />
+                    <button class="btn btn-secondary" onclick="browseImagerSource()">Browse…</button>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label">Destination Image (.raw / .dd)</label>
+                  <div class="input-row">
+                    <input type="text" class="field-input" id="imager-output-path" placeholder="e.g. D:\evidence_clone.raw" />
+                    <button class="btn btn-secondary" onclick="browseImagerOutput()">Select Output…</button>
+                  </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                  <div class="field-group">
+                    <label class="field-label">Block Size</label>
+                    <select class="field-input" id="imager-chunk-size">
+                      <option value="65536">64 KB</option>
+                      <option value="1048576" selected>1 MB (Default)</option>
+                      <option value="4194304">4 MB (High-Throughput)</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group" style="display: flex; align-items: flex-end;">
+                    <label class="checkbox-label" style="margin-bottom: 8px;">
+                      <input type="checkbox" id="imager-calc-sha256" checked />
+                      <span>Compute SHA-256 Hash</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div style="margin-top: 16px; display: flex; gap: 8px;">
+                  <button class="btn btn-primary" id="btn-start-imager" onclick="startDiskImaging()">Start Acquisition</button>
+                  <button class="btn btn-danger" id="btn-cancel-imager" onclick="cancelDiskImaging()" style="display:none">Cancel</button>
+                </div>
+
+                <div id="imager-progress-section" style="display:none; margin-top: 20px;">
+                  <div class="telemetry-strip">
+                    <div class="telemetry-item">
+                      <span class="telemetry-label">Status:</span>
+                      <span class="telemetry-val" id="imager-status-text">Acquiring…</span>
+                    </div>
+                    <div class="telemetry-item">
+                      <span class="telemetry-label">Speed:</span>
+                      <span class="telemetry-val" id="imager-speed-text">0.0 MB/s</span>
+                    </div>
+                    <div class="telemetry-item">
+                      <span class="telemetry-label">Progress:</span>
+                      <span class="telemetry-val" id="imager-bytes-text">0 MB / 0 MB (0%)</span>
+                    </div>
+                    <div class="telemetry-item">
+                      <span class="telemetry-label">Fault Tolerance:</span>
+                      <span class="telemetry-val" id="imager-bad-sectors-text" style="color: var(--cds-support-success);">0 Bad Sectors</span>
+                    </div>
+                  </div>
+
+                  <div class="progress-bar-wrapper" style="margin-top: 10px;">
+                    <div class="progress-bar-fill" id="imager-progress-fill" style="width: 0%;"></div>
+                  </div>
+
+                  <div style="margin-top: 12px; font-size: 11.5px; color: var(--cds-text-secondary);">
+                    SHA-256: <span id="imager-live-hash" class="mono-font" style="color: var(--cds-interactive-01);">Computing…</span>
+                  </div>
+                </div>
+
+                <div id="imager-complete-card" style="display:none; margin-top: 16px; background: var(--cds-support-success-bg); border: 1px solid #a3e9b9; padding: 14px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <strong style="color: var(--cds-support-success);">Bit-Stream Image Completed &amp; Sealed</strong>
+                    <button class="btn btn-secondary small" onclick="loadImagedFileIntoCarver()">Load in Carver</button>
+                  </div>
+                  <div id="imager-complete-details" style="font-size: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═════════════════════════════════════════════════════════════════
+               PAGE 4: SECURE DRIVE ERASER
+               ═════════════════════════════════════════════════════════════════ -->
+          <section class="page" id="page-drive-eraser">
+            <div class="page-header">
+              <h1>Drive Sanitizer</h1>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <h3>Sanitization Configuration</h3>
+              </div>
+              <div class="panel-body">
+                <div class="field-group">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <label class="field-label" style="margin-bottom: 0;">Target Volume</label>
+                    <button class="btn btn-ghost small" onclick="refreshDevices()" style="padding: 2px 8px; font-size: 11px; height: 22px; display: inline-flex; align-items: center; gap: 4px;" title="Rescan hardware ports and mounted volumes">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                      Rescan Drives
+                    </button>
+                  </div>
+                  <div id="wipe-drive-chips" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;"></div>
+                  <div class="input-row">
+                    <input type="text" class="field-input" id="wipe-path" placeholder="Target volume path" />
+                    <button class="btn btn-secondary" onclick="browseWipeImage()">Browse…</button>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label">Sanitization Standard</label>
+                  <div class="standards-grid" id="standards-grid"></div>
+                </div>
+
+                <div class="field-group" style="margin-top: 12px;">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="wipe-verify" checked />
+                    <span>Read-back verification pass</span>
+                  </label>
+                </div>
+
+                <div id="safety-banner" style="display:none; background: var(--cds-support-error-bg); border: 1px solid var(--cds-danger-01); padding: 12px; margin-top: 12px;">
+                  <strong style="color: var(--cds-danger-01);">SYSTEM VOLUME DETECTED</strong>
+                  <div style="font-size: 12px; color: var(--cds-text-secondary); margin-top: 2px;">Target path includes OS partition. Permanent loss will occur.</div>
+                  <button class="btn btn-danger small" style="margin-top: 8px;" onclick="confirmWipe()">Acknowledge &amp; Proceed</button>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 16px;">
+                  <button class="btn btn-danger" id="btn-start-wipe" onclick="startWipe()">Sanitize Target</button>
+                  <button class="btn btn-secondary" id="btn-cancel-wipe" onclick="cancelWipe()" style="display:none">Cancel</button>
+                </div>
+
+                <!-- Wipe Sector Visualizer -->
+                <div class="sector-map-container" id="wipe-sector-map-box" style="margin-top: 16px; display:none">
+                  <div class="sector-map-header">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                      <span style="font-weight: 600;">Sanitization Progression</span>
+                      <span class="tag-pill low mono-font" id="wipe-active-lba">LBA: 0x00000000</span>
+                    </div>
+                    <div class="sector-legend">
+                      <div class="legend-item"><span class="legend-dot unallocated"></span> Pending</div>
+                      <div class="legend-item"><span class="legend-dot wiped"></span> Purged</div>
+                    </div>
+                  </div>
+
+                  <div class="sector-metrics-bar" id="wipe-sector-metrics-bar">
+                    <div class="sector-metric-cell">
+                      <span class="metric-label">Purged Sectors</span>
+                      <span class="metric-value mono-font" id="metric-wipe-sector-count">0 / 0</span>
+                    </div>
+                    <div class="sector-metric-cell">
+                      <span class="metric-label">LBA Pointer</span>
+                      <span class="metric-value mono-font" id="metric-wipe-lba-range">0x00000000</span>
+                    </div>
+                    <div class="sector-metric-cell">
+                      <span class="metric-label">Purged Blocks</span>
+                      <span class="metric-value mono-font" id="metric-wipe-cluster-blocks">0 / 140</span>
+                    </div>
+                  </div>
+
+                  <div class="sector-grid" id="wipe-sector-grid"></div>
+                </div>
+
+                <div id="wipe-progress-section" style="display:none; margin-top: 14px;">
+                  <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                    <span id="wipe-progress-text">Sanitizing…</span>
+                    <span id="wipe-progress-pct" class="mono-font">0%</span>
+                  </div>
+                  <div class="progress-bar-wrapper">
+                    <div id="wipe-progress-fill" style="width: 0%; height: 100%; background: var(--cds-danger-01);"></div>
+                  </div>
+                  <div style="font-size: 11px; color: var(--cds-text-helper); margin-top: 4px;" id="wipe-pass-info">Pass 1</div>
+                </div>
+
+                <div id="wipe-result-card" style="display:none; margin-top: 16px; background: var(--cds-support-success-bg); border: 1px solid #a3e9b9; padding: 14px;">
+                  <strong style="color: var(--cds-support-success);">Sanitization Completed &amp; Verified</strong>
+                  <div id="wipe-result-details" style="font-size: 12px; margin: 8px 0;"></div>
+                  <button class="btn btn-primary small" onclick="generateCertFromLastWipe()">Generate Certificate</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═════════════════════════════════════════════════════════════════
+               PAGE 5: FILE SHREDDER
+               ═════════════════════════════════════════════════════════════════ -->
+          <section class="page" id="page-file-eraser">
+            <div class="page-header">
+              <h1>File Shredder</h1>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <h3>Target Files</h3>
+              </div>
+              <div class="panel-body">
+                <div style="border: 1px dashed var(--cds-border-strong); padding: 24px; text-align: center; cursor: pointer; background: #ffffff;" onclick="browseShredPaths()">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 6px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                  <div style="font-weight: 500;">Select files or directories to shred</div>
+                </div>
+
+                <div id="shred-queue" style="display:none; margin-top: 12px;">
+                  <div style="font-size: 12px; font-weight: 600; margin-bottom: 6px;">Queue (<span id="queue-count">0</span> items)</div>
+                  <ul id="queue-list" style="list-style: none; max-height: 120px; overflow-y: auto; background: #ffffff; border: 1px solid var(--cds-border-subtle); padding: 6px;"></ul>
+                  <button class="btn btn-secondary small" style="margin-top: 6px;" onclick="clearQueue()">Clear Queue</button>
+                </div>
+
+                <div style="display: flex; gap: 16px; align-items: center; margin-top: 14px;">
+                  <div class="field-group" style="margin: 0;">
+                    <label class="field-label">Overwrite Passes</label>
+                    <select class="field-input small" id="shred-passes">
+                      <option value="1">1 Pass</option>
+                      <option value="3" selected>3 Passes (DoD 5220.22-M)</option>
+                      <option value="7">7 Passes (Gutmann)</option>
+                    </select>
+                  </div>
+                  <label class="checkbox-label" style="margin-top: 16px;">
+                    <input type="checkbox" id="shred-meta" checked />
+                    <span>Scrub filesystem metadata</span>
+                  </label>
+                </div>
+
+                <button class="btn btn-danger" style="margin-top: 14px;" onclick="startShred()">Shred Files</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═════════════════════════════════════════════════════════════════
+               PAGE 6: ADVERSARIAL VALIDATION LAB
+               ═════════════════════════════════════════════════════════════════ -->
+          <section class="page" id="page-adversarial">
+            <div class="page-header">
+              <h1>Adversarial Validation</h1>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <h3>Pipeline Execution</h3>
+                <button class="btn btn-primary small" id="btn-run-adv-demo" onclick="runAdversarialDemo()">Run Validation</button>
+              </div>
+              <div class="panel-body">
+                <div class="pipeline-steps">
+                  <div class="pipeline-step" id="adv-step-1">
+                    <div class="step-number">Phase 1</div>
+                    <div class="step-title">Plant</div>
+                  </div>
+                  <div class="pipeline-step" id="adv-step-2">
+                    <div class="step-number">Phase 2</div>
+                    <div class="step-title">Carve</div>
+                  </div>
+                  <div class="pipeline-step" id="adv-step-3">
+                    <div class="step-number">Phase 3</div>
+                    <div class="step-title">Sanitize</div>
+                  </div>
+                  <div class="pipeline-step" id="adv-step-4">
+                    <div class="step-number">Phase 4</div>
+                    <div class="step-title">Verify</div>
+                  </div>
+                  <div class="pipeline-step" id="adv-step-5">
+                    <div class="step-number">Phase 5</div>
+                    <div class="step-title">Rescan</div>
+                  </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                  <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 6px;">Execution Log</div>
+                  <div id="adv-log" class="mono-font" style="background: #161616; color: #f4f4f4; padding: 12px; font-size: 11.5px; height: 160px; overflow-y: auto; border: 1px solid #393939;">
+                    Awaiting execution.
+                  </div>
+                </div>
+
+                <div id="adv-cert-banner" style="display:none; margin-top: 14px; background: var(--cds-support-success-bg); border: 1px solid #a3e9b9; padding: 12px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <strong style="color: var(--cds-support-success);">VERIFIED: ZERO RESIDUAL ARTIFACTS</strong>
+                      <div style="font-size: 11.5px; color: var(--cds-text-secondary);">Ledger Anchor: <code id="adv-anchor-hash" class="mono-font"></code></div>
+                    </div>
+                    <button class="btn btn-primary small" onclick="openPrintCertModal()">View Certificate</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═════════════════════════════════════════════════════════════════
+               PAGE 7: CHAIN OF CUSTODY & PROFILE
+               ═════════════════════════════════════════════════════════════════ -->
+          <section class="page" id="page-case">
+            <div class="page-header">
+              <h1>Chain of Custody</h1>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <h3>Case Information</h3>
+                <button class="btn btn-secondary small" onclick="saveCaseDetails()">Save Profile</button>
+              </div>
+              <div class="panel-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                  <div class="field-group">
+                    <label class="field-label">Case Identifier</label>
+                    <input type="text" class="field-input" id="case-ref-id" value="CASE-2026-NTRO-094" />
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Examiner</label>
+                    <input type="text" class="field-input" id="case-investigator" value="Specialist Yashwanth" />
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Agency</label>
+                    <input type="text" class="field-input" id="case-agency" value="National Technical Research Organisation" />
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">Locker Tag</label>
+                    <input type="text" class="field-input" id="case-serial" value="NTRO-EVD-98124" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel" style="margin-top: 16px;">
+              <div class="panel-header">
+                <h3>Evidentiary Chain of Custody Ledger</h3>
+                <div class="panel-actions">
+                  <button class="btn btn-secondary small" onclick="loadChainOfCustody()">Refresh Custody Ledger</button>
+                </div>
+              </div>
+              <div class="table-wrapper">
+                <table class="data-table" id="custody-table">
+                  <thead>
+                    <tr>
+                      <th>Evidence ID</th>
+                      <th>Acquired LBA / Offset</th>
+                      <th>Timestamp (UTC)</th>
+                      <th>SHA-256 Digest</th>
+                      <th>Local Vault Path</th>
+                      <th>Export Hash Verification</th>
+                    </tr>
+                  </thead>
+                  <tbody id="custody-tbody">
+                    <tr><td colspan="6" style="text-align:center; color: var(--cds-text-helper); padding: 24px;">No evidence artifacts tracked in this custody session yet.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═════════════════════════════════════════════════════════════════
+               PAGE 8: AUDIT LOG & BLOCK CHAIN LEDGER
+               ═════════════════════════════════════════════════════════════════ -->
+          <section class="page" id="page-audit">
+            <div class="page-header">
+              <h1>Audit Ledger</h1>
+            </div>
+
+            <!-- Merkle Root & Sovereign Blockchain Ledger Anchor Strip -->
+            <div class="panel" style="margin-bottom: 14px;">
+              <div class="panel-header">
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <h3>Binary Merkle Tree Root &amp; Sovereign Blockchain State Anchor</h3>
+                  <span class="tag-pill purple mono-font" id="merkle-status-badge">DLT State Synchronized</span>
+                </div>
+                <div class="panel-actions">
+                  <button class="btn btn-primary small" id="btn-anchor-blockchain" onclick="anchorToBlockchain()">Anchor to Blockchain</button>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 14px;">
+                  <div style="background: var(--cds-layer-02); border: 1px solid var(--cds-border-subtle); padding: 12px;">
+                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 4px;">Current Session Binary Merkle Root (SHA-256)</div>
+                    <div id="merkle-root-display" class="mono-font" style="font-size: 12px; font-weight: 600; color: var(--cds-interactive-01); word-break: break-all;">
+                      0000000000000000000000000000000000000000000000000000000000000000
+                    </div>
+                    <div style="margin-top: 8px; font-size: 11px; color: var(--cds-text-secondary);">
+                      Hierarchical cryptographic aggregation across all operational journal entries. Mathematical proof of tamper-evident log continuity.
+                    </div>
+                  </div>
+
+                  <div style="background: var(--cds-layer-02); border: 1px solid var(--cds-border-subtle); padding: 12px;">
+                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 4px;">Anchor Target Ledger</div>
+                    <div style="font-size: 12px; font-weight: 600;">Sovereign Defense DLT / Polygon PoS</div>
+                    <div class="mono-font" style="font-size: 11px; color: var(--cds-text-secondary); margin-top: 4px;">Smart Contract: 0x3F86...92b7</div>
+                    <div class="mono-font" style="font-size: 11px; color: var(--cds-support-success); margin-top: 4px;">State Proof: Valid</div>
+                  </div>
+                </div>
+
+                <div id="blockchain-anchor-card" style="display:none; margin-top: 12px; background: var(--cds-support-info-bg); border: 1px solid #a6c8ff; padding: 14px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                      <strong style="color: var(--cds-support-info); font-size: 12px; text-transform: uppercase;">EIP-712 STATE ANCHOR TRANSACTION COMMITTED</strong>
+                      <span class="tag-pill purple mono-font">Keccak-256 EIP-712</span>
+                      <span class="tag-pill green mono-font">Windows DPAPI Sealed</span>
+                    </div>
+                    <span class="tag-pill blue mono-font" id="anchor-block-height">Block #19842150</span>
+                  </div>
+                  <div style="font-size: 11.5px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                    <div><strong>Tx Hash:</strong> <span id="anchor-tx-hash" class="mono-font" style="color: var(--cds-interactive-01);">-</span></div>
+                    <div><strong>Records Anchored:</strong> <span id="anchor-record-count" class="mono-font">-</span></div>
+                    <div><strong>Officer Identity:</strong> <span id="anchor-officer" class="mono-font">-</span></div>
+                    <div><strong>Explorer:</strong> <a id="anchor-explorer-link" href="#" target="_blank" style="color: var(--cds-interactive-01); text-decoration: underline;">View on Polygonscan</a></div>
+                  </div>
+                  <div style="background: #ffffff; border: 1px solid #d0e2ff; padding: 10px; margin-bottom: 8px;">
+                    <div style="font-size: 10.5px; font-weight: 600; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 2px;">Officer Verifying Key (Ed25519 Public Key · Windows DPAPI Sealed)</div>
+                    <div id="anchor-pubkey" class="mono-font" style="font-size: 11px; color: var(--cds-text-primary); word-break: break-all;">-</div>
+                  </div>
+                  <div style="background: #ffffff; border: 1px solid #d0e2ff; padding: 10px; margin-bottom: 8px;">
+                    <div style="font-size: 10.5px; font-weight: 600; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 2px;">EIP-712 Typed Structured Commitment Hash (Keccak-256)</div>
+                    <div id="anchor-eip712" class="mono-font" style="font-size: 11px; color: var(--cds-interactive-01); word-break: break-all;">-</div>
+                  </div>
+                  <div style="background: #ffffff; border: 1px solid #d0e2ff; padding: 10px; margin-bottom: 8px;">
+                    <div style="font-size: 10.5px; font-weight: 600; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 2px;">Officer Digital Signature (Ed25519 · 64 Bytes / 128 Hex)</div>
+                    <div id="anchor-sig" class="mono-font" style="font-size: 10.5px; color: var(--cds-support-success); word-break: break-all;">-</div>
+                  </div>
+                  <div style="background: #ffffff; border: 1px solid #d0e2ff; padding: 10px;">
+                    <div style="font-size: 10.5px; font-weight: 600; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 2px;">EVM ABI Calldata (anchorRoot(bytes32,uint64,bytes))</div>
+                    <div id="anchor-calldata" class="mono-font" style="font-size: 10px; color: var(--cds-text-secondary); word-break: break-all; max-height: 48px; overflow-y: auto;">-</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <h3>Cryptographic Ledger</h3>
+                <div class="panel-actions">
+                  <button class="btn btn-primary small" onclick="verifyChain()">Verify Chain</button>
+                  <button class="btn btn-secondary small" onclick="loadAuditLog()">Refresh</button>
+                  <button class="btn btn-secondary small" onclick="exportAuditLog()">Export</button>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div id="chain-result" style="display:none; padding: 10px 14px; font-size: 12px; margin-bottom: 12px;"></div>
+                <div class="table-wrapper">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Block</th>
+                        <th>Timestamp (UTC)</th>
+                        <th>Operation</th>
+                        <th>Operator</th>
+                        <th>Detail</th>
+                        <th>SHA-256 Hash</th>
+                      </tr>
+                    </thead>
+                    <tbody id="audit-tbody">
+                      <tr><td colspan="6" style="text-align:center; padding: 16px; color: var(--cds-text-helper);">Loading ledger…</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═════════════════════════════════════════════════════════════════
+               PAGE 9: CERTIFICATES & EXPORT
+               ═════════════════════════════════════════════════════════════════ -->
+          <section class="page" id="page-report">
+            <div class="page-header">
+              <h1>Certificates &amp; Export</h1>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+              <div class="panel">
+                <div class="panel-header"><h3>Sanitization Certificate (PDF)</h3></div>
+                <div class="panel-body">
+                  <div class="field-group">
+                    <label class="field-label">Target ID</label>
+                    <input type="text" class="field-input small" id="cert-job-id" placeholder="e.g. \\.\E:" />
+                  </div>
+                  <button class="btn btn-primary small" onclick="generateCertFromReport()">Generate PDF</button>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-header"><h3>Court Certificate</h3></div>
+                <div class="panel-body">
+                  <button class="btn btn-secondary small" onclick="openPrintCertModal()">Preview Certificate</button>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-header"><h3>Case Dossier (JSON)</h3></div>
+                <div class="panel-body">
+                  <button class="btn btn-secondary small" onclick="exportFullReport()">Export JSON</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       INSPECTOR DRAWER (Multi-Mode: Visual, Text, Hex, Metadata)
+       ═════════════════════════════════════════════════════════════════════════ -->
+  <div class="drawer-backdrop" id="inspector-backdrop" onclick="closeInspector()"></div>
+  <aside class="inspector-drawer" id="inspector-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <span id="inspect-icon"><span class="tag-pill blue mono-font">FILE</span></span>
+        <div>
+          <h3 id="inspect-title" style="font-size: 14px; font-weight: 600;">Artifact Inspector</h3>
+          <div style="font-size: 11px; color: #8d8d8d;" id="inspect-subtitle">SHA-256 Verified</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 6px; align-items: center;">
+        <button class="btn btn-primary small" id="btn-inspect-export" onclick="exportCurrentInspectedArtifact()">Export File</button>
+        <button class="btn btn-secondary small" onclick="closeInspector()" title="Close Inspector" style="padding: 0 8px; display: inline-flex; align-items: center; justify-content: center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="drawer-tabs">
+      <div class="drawer-tab" data-tab="visual" onclick="switchInspectorTab('visual')">Visual Preview</div>
+      <div class="drawer-tab" data-tab="text" onclick="switchInspectorTab('text')">Text Stream</div>
+      <div class="drawer-tab active" data-tab="hex" onclick="switchInspectorTab('hex')">Raw Hex &amp; ASCII</div>
+      <div class="drawer-tab" data-tab="meta" onclick="switchInspectorTab('meta')">Metadata</div>
+    </div>
+
+    <div class="drawer-body">
+      <div id="inspect-tab-visual" style="display:none">
+        <div class="inspect-visual-box">
+          <img id="inspect-img-preview" src="" alt="Preview" style="display:none" />
+          <div id="inspect-visual-empty" style="color: #8d8d8d; font-size: 12px;">No image preview for this format.</div>
+        </div>
+      </div>
+
+      <div id="inspect-tab-text" style="display:none">
+        <div class="inspect-text-box">
+          <pre id="inspect-text-preview">Loading text contents…</pre>
+        </div>
+      </div>
+
+      <div id="inspect-tab-hex">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; color: var(--cds-text-secondary);">
+          <span>Offset: <code id="inspect-hex-offset" class="mono-font">0x00000000</code></span>
+          <span>512-Byte Sector Buffer</span>
+        </div>
+        <div class="hex-viewer-box" id="inspect-hex-content">Loading bytes…</div>
+      </div>
+
+      <div id="inspect-tab-meta" style="display:none">
+        <div style="background: #ffffff; border: 1px solid var(--cds-border-subtle); padding: 12px; margin-bottom: 12px;">
+          <div style="font-size: 10.5px; color: var(--cds-text-helper); text-transform: uppercase;">SHA-256 Evidential Hash</div>
+          <div id="inspect-meta-sha256" class="mono-font" style="font-size: 11.5px; font-weight: 600; color: var(--cds-interactive-01); word-break: break-all; margin-top: 4px;"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; margin-bottom: 12px;">
+          <div><strong>Extension:</strong> <span id="inspect-meta-ext">-</span></div>
+          <div><strong>Size:</strong> <span id="inspect-meta-size">-</span></div>
+          <div><strong>LBA Offset:</strong> <span id="inspect-meta-offset" class="mono-font">-</span></div>
+          <div><strong>Shannon Entropy:</strong> <span id="inspect-meta-entropy" class="mono-font">-</span></div>
+          <div><strong>Confidence:</strong> <span id="inspect-meta-confidence" class="tag-pill high">100%</span></div>
+          <div><strong>Structure:</strong> <span id="inspect-meta-valid" class="tag-pill high">Valid</span></div>
+          <div><strong>Chain of Custody:</strong> <span class="tag-pill purple">Merkle Sealed</span></div>
+          <div><strong>Extracted Path:</strong> <span id="inspect-meta-path" class="mono-font" style="font-size:11px; word-break:break-all;">-</span></div>
+        </div>
+
+        <!-- Bi-Fragment Gap Assembly Telemetry -->
+        <div class="fragment-telemetry-box" id="inspect-fragment-box">
+          <div style="font-weight: 600; font-size: 11px; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 6px;">
+            Bi-Fragment Gap Telemetry (SmartCarve)
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11.5px;">
+            <div>Fragment Count: <strong id="inspect-frag-count">1 (Contiguous)</strong></div>
+            <div>Stitch Method: <span class="mono-font" id="inspect-frag-method">Linear Run</span></div>
+            <div>Cluster Gap Jump: <span class="mono-font" id="inspect-frag-gap">0 bytes</span></div>
+            <div>KL Divergence: <span class="mono-font" id="inspect-frag-kl">—</span></div>
+          </div>
+          <div id="inspect-frag-chain" class="mono-font" style="margin-top: 6px; font-size: 10.5px; color: var(--cds-interactive-01); word-break: break-all;">
+            LBA Chain: 0x00000000 (Primary)
+          </div>
+        </div>
+
+        <!-- Embedded Metadata & Database Diagnostics -->
+        <div id="inspect-embedded-meta-box" style="margin-top: 12px; background: #ffffff; border: 1px solid var(--cds-border-subtle); padding: 12px; font-size: 11.5px;">
+          <div style="font-weight: 600; font-size: 11px; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 6px;">
+            Structural Ingestion Diagnostics
+          </div>
+          <div id="inspect-embedded-meta-list" style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="color: var(--cds-text-helper);">No extra metadata decoded.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       S.M.A.R.T. DRIVE DIAGNOSTICS MODAL
+       ═════════════════════════════════════════════════════════════════════════ -->
+  <div class="drawer-backdrop" id="diag-modal-backdrop" onclick="closeDiagModal()"></div>
+  <div class="cds-modal modal-md" id="diag-modal">
+    <div class="cds-modal-header">
+      <h3 class="cds-modal-title" id="diag-modal-title">Drive Diagnostics</h3>
+      <button class="cds-modal-close" onclick="closeDiagModal()" title="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cds-modal-body">
+      <div class="diag-grid">
+        <div class="diag-card"><div class="diag-card-title">Model</div><div class="diag-card-val" id="diag-model">-</div></div>
+        <div class="diag-card"><div class="diag-card-title">Serial Number</div><div class="diag-card-val mono-font" id="diag-serial">-</div></div>
+        <div class="diag-card"><div class="diag-card-title">Interface</div><div class="diag-card-val" id="diag-bus">-</div></div>
+        <div class="diag-card"><div class="diag-card-title">Partition Style</div><div class="diag-card-val" id="diag-part-style">-</div></div>
+        <div class="diag-card"><div class="diag-card-title">Capacity</div><div class="diag-card-val" id="diag-capacity">-</div></div>
+        <div class="diag-card"><div class="diag-card-title">Sector Size</div><div class="diag-card-val mono-font" id="diag-sector">-</div></div>
+        <div class="diag-card"><div class="diag-card-title">Media Type</div><div class="diag-card-val" id="diag-media">-</div></div>
+        <div class="diag-card"><div class="diag-card-title">S.M.A.R.T. Health</div><div class="diag-card-val" id="diag-status" style="color: var(--cds-support-success);">Healthy</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       COURT CERTIFICATE MODAL (Section 63 BSA 2023 / §65B IEA)
+       ═════════════════════════════════════════════════════════════════════════ -->
+  <div class="drawer-backdrop" id="cert-modal-backdrop" onclick="closeCertModal()"></div>
+  <div class="cds-modal modal-lg" id="cert-modal" style="max-height: 90vh;">
+    <div class="cds-modal-header">
+      <div>
+        <h3 class="cds-modal-title">SECTION 63 BSA 2023 · ELECTRONIC EVIDENCE CERTIFICATE</h3>
+        <div class="cds-modal-subtitle">Government of India · Admissible in Courts of Law (formerly §65B Indian Evidence Act)</div>
+      </div>
+      <button class="cds-modal-close" onclick="closeCertModal()" title="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cds-modal-body">
+      <div style="background: var(--cds-layer-02); border: 1px solid var(--cds-border-subtle); padding: 12px; margin-bottom: 14px; font-size: 11.5px; line-height: 1.5;">
+        <strong>Statutory Declaration:</strong> I hereby certify under Section 63 of the Bharatiya Sakshya Adhiniyam, 2023 (Act No. 47 of 2023) that the digital forensics and data sanitization operations described herein were executed under strict write-blocking controls, maintaining uninterrupted custody, verified by hardware controller geometry query and cryptographic hash chaining.
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; margin-bottom: 14px;">
+        <div><strong>Case ID:</strong> <span id="modal-cert-case" class="mono-font">CASE-2026-NTRO-094</span></div>
+        <div><strong>Timestamp (UTC):</strong> <span id="modal-cert-time" class="mono-font">2026-09-04 16:00:00 UTC</span></div>
+        <div><strong>Target Media:</strong> <span id="modal-cert-target" class="mono-font">\\.\E:</span></div>
+        <div><strong>Sanitization Standard:</strong> <span id="modal-cert-standard">NIST SP 800-88 Rev 1 (Purge/Clear)</span></div>
+        <div><strong>Read-Back Verification:</strong> <span id="modal-cert-readback" style="color: var(--cds-support-success); font-weight: 600;">PASSED (0 bit-level mismatches)</span></div>
+        <div><strong>Residual Entropy:</strong> <span id="modal-cert-entropy" class="mono-font" style="color: var(--cds-support-success); font-weight: 600;">0.0000 bits/byte</span></div>
+        <div><strong>Certifying Agency:</strong> <span id="modal-cert-agency">NTRO / Cyber Defense Command</span></div>
+        <div><strong>Forensic Specialist:</strong> <span id="modal-cert-examiner">Specialist Yashwanth</span></div>
+      </div>
+
+      <div style="background: #ffffff; border: 1px solid var(--cds-border-subtle); padding: 12px; margin-bottom: 12px;">
+        <div style="font-size: 10.5px; font-weight: 600; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 4px;">Cryptographic Binary Merkle Root (Session Ledger)</div>
+        <div id="modal-cert-merkle" class="mono-font" style="font-size: 11.5px; color: var(--cds-interactive-01); word-break: break-all;">-</div>
+      </div>
+
+      <div style="background: #ffffff; border: 1px solid var(--cds-border-subtle); padding: 12px; margin-bottom: 12px;">
+        <div style="font-size: 10.5px; font-weight: 600; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 4px;">EIP-712 Typed Structured Commitment Digest</div>
+        <div id="modal-cert-eip712" class="mono-font" style="font-size: 11.5px; color: var(--cds-text-primary); word-break: break-all;">-</div>
+      </div>
+
+      <div style="background: #ffffff; border: 1px solid var(--cds-border-subtle); padding: 12px; margin-bottom: 12px;">
+        <div style="font-size: 10.5px; font-weight: 600; text-transform: uppercase; color: var(--cds-text-helper); margin-bottom: 4px;">Officer Verifying Key (Ed25519 Public Key · RFC 8032)</div>
+        <div id="modal-cert-pubkey" class="mono-font" style="font-size: 11px; color: var(--cds-text-secondary); word-break: break-all;">-</div>
+      </div>
+
+      <div style="background: #ffffff; border: 1px solid var(--cds-border-subtle); padding: 12px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <div style="font-size: 10.5px; font-weight: 600; text-transform: uppercase; color: var(--cds-text-helper);">Officer Digital Signature &amp; Blockchain Anchor Tx</div>
+          <span class="tag-pill green mono-font">Ed25519 Validated</span>
+        </div>
+        <div style="font-size: 11px; color: var(--cds-text-secondary); margin-bottom: 4px;">Tx Hash: <span id="modal-cert-tx" class="mono-font" style="color: var(--cds-support-info); word-break: break-all;">-</span></div>
+        <div style="font-size: 11px; color: var(--cds-text-secondary);">Signature: <span id="modal-cert-sig" class="mono-font" style="word-break: break-all; color: var(--cds-support-success);">-</span></div>
+      </div>
+    </div>
+    <div class="cds-modal-footer">
+      <div style="font-size: 11px; color: var(--cds-text-helper);">
+        Status: <span class="tag-pill purple">Court Admissible Document</span>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary small" onclick="closeCertModal()">Close</button>
+        <button class="btn btn-primary small" onclick="window.print()">Print Affidavit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════════════
+       SUPPORTED SIGNATURES & EXTENSIONS CATALOG MODAL (420+ Formats)
+       ═════════════════════════════════════════════════════════════════════════ -->
+  <div class="drawer-backdrop" id="sig-modal-backdrop" onclick="closeSignaturesModal()"></div>
+  <div class="cds-modal modal-xl" id="sig-modal" style="max-height: 88vh;">
+    <div class="cds-modal-header">
+      <div>
+        <h3 class="cds-modal-title">
+          Forensic Signature &amp; Format Catalog
+          <span class="tag-pill green" style="font-size: 11px;">420+ Extensions Supported</span>
+        </h3>
+        <div class="cds-modal-subtitle">Exceeds Commercial Standard (Disk Drill 400+ Parity) · Multi-Sector Parallel Carver</div>
+      </div>
+      <button class="cds-modal-close" onclick="closeSignaturesModal()" title="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Modal Toolbar -->
+    <div class="cds-modal-toolbar">
+      <div style="display: flex; gap: 8px; flex: 1; max-width: 400px;">
+        <input type="text" id="sig-search-input" class="field-input small" placeholder="Search extension or name (e.g. cr3, heic, dwg, zst)…" oninput="filterSignaturesModal()" style="width: 100%;" />
+      </div>
+      <div style="display: flex; gap: 6px; font-size: 11.5px;">
+        <span class="tag-pill mono-font">Signatures: <strong id="sig-modal-count-rules">102</strong></span>
+        <span class="tag-pill green mono-font">Formats: <strong id="sig-modal-count-exts">428</strong></span>
+      </div>
+    </div>
+
+    <!-- Signatures List Table -->
+    <div class="cds-modal-body" style="max-height: 48vh; padding: 0 20px;">
+      <table class="data-table" style="margin-top: 8px;">
+        <thead>
+          <tr>
+            <th style="width: 80px;">Extension</th>
+            <th>Description &amp; Standards</th>
+            <th style="width: 120px;">Category</th>
+            <th style="width: 180px;">Magic Hex Bytes</th>
+            <th style="width: 90px;">Confidence</th>
+          </tr>
+        </thead>
+        <tbody id="sig-modal-tbody">
+          <tr><td colspan="5" style="text-align:center; padding: 20px; color: var(--cds-text-helper);">Loading signature rules…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Supported Extensions Matrix Footer -->
+    <div class="cds-modal-footer" style="flex-direction: column; align-items: stretch; gap: 4px;">
+      <div style="font-size: 11px; font-weight: 600; color: var(--cds-text-secondary); text-transform: uppercase;">
+        All Supported Format Extensions Matrix (420+):
+      </div>
+      <div id="sig-extensions-cloud" class="mono-font" style="font-size: 10.5px; color: var(--cds-text-helper); max-height: 48px; overflow-y: auto; line-height: 1.5; word-break: break-all;">
+        Loading catalog…
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+  <script type="module" src="main.js"></script>
+</body>
+</html>

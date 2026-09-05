@@ -1,0 +1,82 @@
+[package]
+name    = "forensix"
+version = "0.1.0"
+edition = "2021"
+
+[package.metadata.bundle]
+identifier = "in.ntro.forensix"
+icon = ["icons/icon.ico", "icons/icon.png"]
+
+
+[lib]
+name = "forensix_lib"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "forensix"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri              = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-fs    = "2"
+tauri-plugin-shell = "2"
+serde              = { version = "1", features = ["derive"] }
+serde_json         = "1"
+sha2               = "0.10"
+hex                = "0.4"
+rand               = "0.8"
+rayon              = "1"
+walkdir            = "2"
+chrono             = { version = "0.4", features = ["serde"] }
+thiserror          = "1"
+log                = "0.4"
+env_logger         = "0.11"
+printpdf           = "0.7"
+zip                = "0.6"
+memmap2            = "0.9"
+byteorder          = "1"
+lazy_static        = "1"
+hostname           = "0.4"
+ed25519-dalek      = { version = "2.1", features = ["rand_core"] }
+tiny-keccak        = { version = "2.0", features = ["keccak"] }
+qrcode             = { version = "0.14", default-features = false }
+ureq               = { version = "2.10", default-features = false, features = ["tls", "json"] }
+
+[target.'cfg(windows)'.dependencies]
+winapi             = { version = "0.3", features = ["ioapiset", "winioctl", "handleapi", "fileapi", "wincrypt", "dpapi", "winbase"] }
+
+[profile.release]
+opt-level   = 3
+lto         = true
+strip       = true
+codegen-units = 1
+panic       = "abort"
+
+[profile.dev]
+opt-level   = 1      # faster incremental builds + enough perf for dev scanning
+debug       = 1      # line-tables only: retains crash traces/line numbers, drastically cuts link time and PDB size
+incremental = true
+
+# Compile hot-path scan dependencies at full speed even in dev — zero effect on compile times
+# These libraries are never recompiled after the first build (no source changes)
+[profile.dev.package.rayon]
+opt-level = 3
+
+[profile.dev.package.rayon-core]
+opt-level = 3
+
+[profile.dev.package.memmap2]
+opt-level = 3
+
+[profile.dev.package.sha2]
+opt-level = 3
+
+[profile.dev.package.hex]
+opt-level = 3
+
+[profile.dev.package.byteorder]
+opt-level = 3
