@@ -1017,14 +1017,38 @@
     <div class="drawer-body">
       <div id="inspect-tab-visual" style="display:none">
         <div class="inspect-visual-box">
-          <img id="inspect-img-preview" src="" alt="Preview" style="display:none" />
-          <div id="inspect-visual-empty" style="color: #8d8d8d; font-size: 12px;">No image preview for this format.</div>
+          <!-- Image Element -->
+          <img id="inspect-img-preview" src="" alt="Image Preview" style="display:none;" />
+          
+          <!-- Video Element -->
+          <video id="inspect-video-preview" controls playsinline style="display:none;" src=""></video>
+          
+          <!-- Audio Element Container -->
+          <div id="inspect-audio-container" style="display:none; width: 100%; text-align: center; padding: 24px 12px;">
+            <div style="font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--cds-text-primary);" id="inspect-audio-title">Forensic Audio Stream</div>
+            <audio id="inspect-audio-preview" controls style="width: 100%; max-width: 480px;" src=""></audio>
+          </div>
+
+          <!-- Empty placeholder -->
+          <div id="inspect-visual-empty" style="color: var(--cds-text-helper); font-size: 12px; text-align: center;">
+            No visual or multimedia stream available for this format.
+          </div>
+        </div>
+
+        <!-- Media Info Strip -->
+        <div id="inspect-media-info" style="display: none; justify-content: space-between; align-items: center; margin-top: 10px; padding: 8px 12px; background: var(--cds-layer-02); border: 1px solid var(--cds-border-subtle); font-size: 11px;">
+          <span id="inspect-media-res" class="mono-font">Resolution: -</span>
+          <span id="inspect-media-type" class="tag-pill blue mono-font">MIME</span>
         </div>
       </div>
 
       <div id="inspect-tab-text" style="display:none">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 11px; color: var(--cds-text-secondary);">
+          <span id="inspect-text-info">Encoding: UTF-8 / ASCII Stream</span>
+          <button class="btn btn-secondary small" onclick="copyInspectorText()" id="btn-copy-inspect-text">Copy Text</button>
+        </div>
         <div class="inspect-text-box">
-          <pre id="inspect-text-preview">Loading text contents…</pre>
+          <pre id="inspect-text-preview" style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; margin: 0; user-select: text;">Loading text contents…</pre>
         </div>
       </div>
 

@@ -112,8 +112,30 @@ pub mod cmd {
     pub fn read_file_hex(path: String, offset: u64, length: usize) -> Result<HexChunk> {
         use std::fs::File;
         use std::io::{Read, Seek, SeekFrom};
+        use std::path::Path;
+
         let norm = scanner::normalise_path(&path);
-        let mut f = File::open(&norm)?;
+        let path_obj = Path::new(&norm);
+
+        let mut target_path = path_obj.to_path_buf();
+        if !target_path.exists() {
+            let alt1 = Path::new("recovered_evidence").join(&norm);
+            if alt1.exists() {
+                target_path = alt1;
+            } else {
+                let alt2 = Path::new("src-tauri").join(&norm);
+                if alt2.exists() {
+                    target_path = alt2;
+                } else {
+                    let alt3 = Path::new("src-tauri").join("recovered_evidence").join(&norm);
+                    if alt3.exists() {
+                        target_path = alt3;
+                    }
+                }
+            }
+        }
+
+        let mut f = File::open(&target_path)?;
         let total_size = f.seek(SeekFrom::End(0))?;
         let seek_off = offset.min(total_size);
         f.seek(SeekFrom::Start(seek_off))?;
@@ -129,42 +151,98 @@ pub mod cmd {
         })
     }
 
-    /// Read visual or textual preview for carved artifacts (images, documents, logs)
+    /// Read visual, video, audio, or textual preview for carved artifacts
     #[tauri::command]
     pub fn read_file_preview(path: String) -> Result<FilePreview> {
         use std::fs::File;
         use std::io::{Read, Seek, SeekFrom};
+        use std::path::Path;
+
         let norm = scanner::normalise_path(&path);
-        let mut f = File::open(&norm)?;
+        let path_obj = Path::new(&norm);
+
+        // Attempt multiple resolution paths if relative
+        let mut target_path = path_obj.to_path_buf();
+        if !target_path.exists() {
+            let alt1 = Path::new("recovered_evidence").join(&norm);
+            if alt1.exists() {
+                target_path = alt1;
+            } else {
+                let alt2 = Path::new("src-tauri").join(&norm);
+                if alt2.exists() {
+                    target_path = alt2;
+                } else {
+                    let alt3 = Path::new("src-tauri").join("recovered_evidence").join(&norm);
+                    if alt3.exists() {
+                        target_path = alt3;
+                    }
+                }
+            }
+        }
+
+        let mut f = File::open(&target_path)?;
         let total_size = f.seek(SeekFrom::End(0))?;
         f.seek(SeekFrom::Start(0))?;
 
-        let ext = std::path::Path::new(&path)
+        let ext = target_path
             .extension()
             .and_then(|e| e.to_str())
             .unwrap_or("")
             .to_lowercase();
 
-        let image_exts = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "ico", "svg"];
-        let text_exts  = ["txt", "log", "json", "xml", "html", "htm", "csv", "sql", "pem", "asc", "rtf", "md", "cfg", "ini"];
+        let image_exts = [
+            "jpg", "jpeg", "png", "gif", "bmp", "webp", "ico", "svg", "avif", "tif", "tiff",
+            "cr2", "nef", "arw", "dng", "raf", "rw2",
+        ];
+        let video_exts = [
+            "mp4", "m4v", "webm", "mkv", "mov", "avi", "ogg", "ogv", "flv", "3gp", "wmv",
+        ];
+        let audio_exts = [
+            "mp3", "wav", "ogg", "oga", "flac", "m4a", "aac", "wma", "mid", "midi",
+        ];
+        let text_exts = [
+            "txt", "log", "json", "xml", "html", "htm", "xhtml", "css", "js", "mjs", "ts",
+            "py", "rs", "c", "cpp", "h", "hpp", "cs", "java", "go", "php", "rb", "sh", "bash",
+            "ps1", "bat", "cmd", "csv", "tsv", "sql", "md", "markdown", "yaml", "yml", "toml",
+            "ini", "cfg", "conf", "reg", "pem", "crt", "cer", "key", "pub", "asc", "sig", "jwt",
+            "env", "rtf", "vtt", "srt", "diff", "patch", "hex", "asm",
+        ];
 
+        // 1. IMAGE PREVIEW
         if image_exts.contains(&ext.as_str()) {
-            let read_limit = total_size.min(10 * 1024 * 1024) as usize; // up to 10 MB preview
+            let read_limit = total_size.min(15 * 1024 * 1024) as usize; // up to 15 MB
             let mut buf = vec![0u8; read_limit];
             f.read_exact(&mut buf).ok();
-            let mime = match ext.as_str() {
-                "jpg" | "jpeg" => "image/jpeg",
-                "png"          => "image/png",
-                "gif"          => "image/gif",
-                "bmp"          => "image/bmp",
-                "webp"         => "image/webp",
-                "ico"          => "image/x-icon",
-                "svg"          => "image/svg+xml",
-                _              => "image/png",
+
+            // Handle Camera RAW thumbnails (CR2, NEF, ARW, DNG, etc.)
+            let (mime, final_buf) = if matches!(ext.as_str(), "cr2" | "nef" | "arw" | "dng" | "raf" | "rw2" | "tif" | "tiff") {
+                // Search for embedded JPEG thumbnail magic (FF D8 FF)
+                if let Some(pos) = buf.windows(3).position(|w| w == [0xFF, 0xD8, 0xFF]) {
+                    let eoi = buf[pos..].windows(2).position(|w| w == [0xFF, 0xD9]).map(|p| pos + p + 2).unwrap_or(buf.len());
+                    ("image/jpeg", &buf[pos..eoi])
+                } else {
+                    ("image/png", &buf[..])
+                }
+            } else {
+                let m = match ext.as_str() {
+                    "jpg" | "jpeg" => "image/jpeg",
+                    "png"          => "image/png",
+                    "gif"          => "image/gif",
+                    "bmp"          => "image/bmp",
+                    "webp"         => "image/webp",
+                    "ico"          => "image/x-icon",
+                    "svg"          => "image/svg+xml",
+                    "avif"         => "image/avif",
+                    _              => "image/png",
+                };
+                (m, &buf[..])
             };
-            let b64 = format!("data:{};base64,{}", mime, base64_encode(&buf));
+
+            let b64 = format!("data:{};base64,{}", mime, base64_encode(final_buf));
             return Ok(FilePreview {
                 is_image: true,
+                is_video: false,
+                is_audio: false,
                 is_text: false,
                 data_base64: Some(b64),
                 text_content: None,
@@ -173,23 +251,110 @@ pub mod cmd {
             });
         }
 
-        if text_exts.contains(&ext.as_str()) {
-            let read_limit = total_size.min(64 * 1024) as usize; // first 64 KB of text
+        // 2. VIDEO PREVIEW
+        if video_exts.contains(&ext.as_str()) {
+            let read_limit = total_size.min(25 * 1024 * 1024) as usize; // up to 25 MB for video stream
             let mut buf = vec![0u8; read_limit];
             f.read_exact(&mut buf).ok();
-            let text = String::from_utf8_lossy(&buf).to_string();
+
+            let mime = match ext.as_str() {
+                "mp4" | "m4v" => "video/mp4",
+                "webm"        => "video/webm",
+                "ogg" | "ogv" => "video/ogg",
+                "mov"         => "video/mp4", // Modern Chromium plays MP4/MOV h264 natively
+                "mkv"         => "video/webm",
+                "avi"         => "video/x-msvideo",
+                _             => "video/mp4",
+            };
+            let b64 = format!("data:{};base64,{}", mime, base64_encode(&buf));
             return Ok(FilePreview {
                 is_image: false,
-                is_text: true,
-                data_base64: None,
-                text_content: Some(text),
-                mime_type: format!("text/{}", ext),
+                is_video: true,
+                is_audio: false,
+                is_text: false,
+                data_base64: Some(b64),
+                text_content: None,
+                mime_type: mime.to_string(),
                 file_size: total_size,
             });
         }
 
+        // 3. AUDIO PREVIEW
+        if audio_exts.contains(&ext.as_str()) {
+            let read_limit = total_size.min(20 * 1024 * 1024) as usize; // up to 20 MB
+            let mut buf = vec![0u8; read_limit];
+            f.read_exact(&mut buf).ok();
+
+            let mime = match ext.as_str() {
+                "mp3"         => "audio/mpeg",
+                "wav"         => "audio/wav",
+                "ogg" | "oga" => "audio/ogg",
+                "flac"        => "audio/flac",
+                "m4a" | "aac" => "audio/aac",
+                "mid" | "midi"=> "audio/midi",
+                _             => "audio/mpeg",
+            };
+            let b64 = format!("data:{};base64,{}", mime, base64_encode(&buf));
+            return Ok(FilePreview {
+                is_image: false,
+                is_video: false,
+                is_audio: true,
+                is_text: false,
+                data_base64: Some(b64),
+                text_content: None,
+                mime_type: mime.to_string(),
+                file_size: total_size,
+            });
+        }
+
+        // 4. TEXT & CODE PREVIEW
+        let read_limit = total_size.min(512 * 1024) as usize; // first 512 KB of text
+        let mut buf = vec![0u8; read_limit];
+        f.read_exact(&mut buf).ok();
+
+        if text_exts.contains(&ext.as_str()) {
+            let text = String::from_utf8_lossy(&buf).to_string();
+            return Ok(FilePreview {
+                is_image: false,
+                is_video: false,
+                is_audio: false,
+                is_text: true,
+                data_base64: None,
+                text_content: Some(text),
+                mime_type: format!("text/{}", if ext.is_empty() { "plain" } else { &ext }),
+                file_size: total_size,
+            });
+        }
+
+        // 5. CONTENT-BASED TEXT HEURISTIC FALLBACK
+        if !buf.is_empty() {
+            let sample_len = buf.len().min(4096);
+            let sample = &buf[..sample_len];
+            let null_count = sample.iter().filter(|&&b| b == 0).count();
+            let printable_count = sample.iter().filter(|&&b| {
+                b == b'\t' || b == b'\n' || b == b'\r' || (b >= 32 && b <= 126) || b >= 128
+            }).count();
+
+            // If zero or near-zero null bytes and high ratio of printable characters
+            if null_count == 0 && (printable_count as f32 / sample_len as f32) > 0.85 {
+                let text = String::from_utf8_lossy(&buf).to_string();
+                return Ok(FilePreview {
+                    is_image: false,
+                    is_video: false,
+                    is_audio: false,
+                    is_text: true,
+                    data_base64: None,
+                    text_content: Some(text),
+                    mime_type: "text/plain".into(),
+                    file_size: total_size,
+                });
+            }
+        }
+
         Ok(FilePreview {
             is_image: false,
+            is_video: false,
+            is_audio: false,
             is_text: false,
             data_base64: None,
             text_content: None,
@@ -281,9 +446,11 @@ pub struct HexChunk {
     pub total_size: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct FilePreview {
     pub is_image:     bool,
+    pub is_video:     bool,
+    pub is_audio:     bool,
     pub is_text:      bool,
     pub data_base64:  Option<String>,
     pub text_content: Option<String>,

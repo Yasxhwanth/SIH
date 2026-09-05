@@ -1592,34 +1592,94 @@ window.openInspector = async function(fileId) {
   let initialTab = 'hex';
   const filePath = file.path ? (typeof file.path === 'string' ? file.path : file.path.toString()) : '';
 
-  try {
-    const preview = await invoke('read_file_preview', { path: filePath, maxBytes: 2097152 });
-    const imgEl = document.getElementById('inspect-img-preview');
-    const emptyEl = document.getElementById('inspect-visual-empty');
-    const textEl = document.getElementById('inspect-text-preview');
+  // Reset all preview views
+  const imgEl = document.getElementById('inspect-img-preview');
+  const videoEl = document.getElementById('inspect-video-preview');
+  const audioEl = document.getElementById('inspect-audio-preview');
+  const audioContainer = document.getElementById('inspect-audio-container');
+  const emptyEl = document.getElementById('inspect-visual-empty');
+  const mediaInfoEl = document.getElementById('inspect-media-info');
+  const mediaResEl = document.getElementById('inspect-media-res');
+  const mediaTypeEl = document.getElementById('inspect-media-type');
+  const textEl = document.getElementById('inspect-text-preview');
+  const textInfoEl = document.getElementById('inspect-text-info');
+  const hexOffsetEl = document.getElementById('inspect-hex-offset');
 
-    if (preview.is_image && preview.preview_data) {
+  if (imgEl) { imgEl.style.display = 'none'; imgEl.src = ''; }
+  if (videoEl) { videoEl.style.display = 'none'; videoEl.pause(); videoEl.src = ''; }
+  if (audioEl) { audioEl.pause(); audioEl.src = ''; }
+  if (audioContainer) audioContainer.style.display = 'none';
+  if (emptyEl) emptyEl.style.display = 'none';
+  if (mediaInfoEl) mediaInfoEl.style.display = 'none';
+  if (textEl) textEl.textContent = 'Loading text stream…';
+  if (textInfoEl) textInfoEl.textContent = 'Encoding: UTF-8 / ASCII Stream';
+  if (hexOffsetEl) hexOffsetEl.textContent = `0x${file.offset.toString(16).padStart(8, '0').toUpperCase()}`;
+
+  try {
+    const preview = await invoke('read_file_preview', { path: filePath });
+    
+    // 1. Visual / Multimedia Preview Handling
+    let hasMedia = false;
+    if (preview.is_image && preview.data_base64) {
       if (imgEl) {
-        imgEl.src = preview.preview_data;
+        imgEl.src = preview.data_base64;
         imgEl.style.display = 'block';
+        imgEl.onload = () => {
+          if (mediaResEl) mediaResEl.textContent = `Dimensions: ${imgEl.naturalWidth} × ${imgEl.naturalHeight} px`;
+        };
       }
-      if (emptyEl) emptyEl.style.display = 'none';
+      if (mediaTypeEl) mediaTypeEl.textContent = preview.mime_type || 'Image';
+      if (mediaInfoEl) mediaInfoEl.style.display = 'flex';
+      hasMedia = true;
       initialTab = 'visual';
-    } else {
-      if (imgEl) imgEl.style.display = 'none';
-      if (emptyEl) emptyEl.style.display = 'block';
+    } else if (preview.is_video && preview.data_base64) {
+      if (videoEl) {
+        videoEl.src = preview.data_base64;
+        videoEl.style.display = 'block';
+        videoEl.onloadedmetadata = () => {
+          const dur = videoEl.duration ? ` · ${videoEl.duration.toFixed(1)}s` : '';
+          if (mediaResEl) mediaResEl.textContent = `Video: ${videoEl.videoWidth} × ${videoEl.videoHeight} px${dur}`;
+        };
+      }
+      if (mediaTypeEl) mediaTypeEl.textContent = preview.mime_type || 'Video Stream';
+      if (mediaInfoEl) mediaInfoEl.style.display = 'flex';
+      hasMedia = true;
+      initialTab = 'visual';
+    } else if (preview.is_audio && preview.data_base64) {
+      if (audioEl) {
+        audioEl.src = preview.data_base64;
+        if (audioContainer) audioContainer.style.display = 'block';
+        audioEl.onloadedmetadata = () => {
+          const dur = audioEl.duration ? `Duration: ${audioEl.duration.toFixed(1)}s` : 'Continuous Stream';
+          if (mediaResEl) mediaResEl.textContent = `Audio: ${dur}`;
+        };
+      }
+      if (mediaTypeEl) mediaTypeEl.textContent = preview.mime_type || 'Audio Stream';
+      if (mediaInfoEl) mediaInfoEl.style.display = 'flex';
+      hasMedia = true;
+      initialTab = 'visual';
     }
 
-    if (preview.is_text && preview.preview_data) {
-      if (textEl) textEl.textContent = preview.preview_data;
-      if (!preview.is_image) initialTab = 'text';
+    if (!hasMedia && emptyEl) {
+      emptyEl.style.display = 'block';
+    }
+
+    // 2. Text Stream Handling
+    if (preview.is_text && preview.text_content) {
+      if (textEl) textEl.textContent = preview.text_content;
+      if (textInfoEl) textInfoEl.textContent = `MIME: ${preview.mime_type || 'text/plain'} · Size: ${formatSize(preview.text_content.length)}`;
+      if (!hasMedia) initialTab = 'text';
     } else {
       if (textEl) textEl.textContent = 'Non-textual or binary format. View Raw Hex & ASCII stream.';
+      if (textInfoEl) textInfoEl.textContent = 'Non-Textual Binary Stream';
     }
 
+    // 3. Raw Hex Stream Handling
     const chunk = await invoke('read_file_hex', { path: filePath, offset: 0, length: 512 });
-    renderHexViewer(chunk.bytes, chunk.offset);
+    renderHexViewer(chunk.bytes, file.offset || chunk.offset || 0);
   } catch(e) {
+    if (textEl) textEl.textContent = 'Unable to extract text preview: ' + e;
+    if (emptyEl) emptyEl.style.display = 'block';
     hexBox.textContent = `Raw hex cluster read: Sample preview\n\n${generateSampleHex(file)}`;
   }
 
@@ -1697,11 +1757,21 @@ function generateSampleHex(file) {
 }
 
 window.closeInspector = function() {
+  const videoEl = document.getElementById('inspect-video-preview');
+  if (videoEl) { videoEl.pause(); videoEl.src = ''; }
+  const audioEl = document.getElementById('inspect-audio-preview');
+  if (audioEl) { audioEl.pause(); audioEl.src = ''; }
   document.getElementById('inspector-drawer').classList.remove('active');
   document.getElementById('inspector-backdrop').classList.remove('active');
 };
 
 window.switchInspectorTab = function(tab) {
+  if (tab !== 'visual') {
+    const videoEl = document.getElementById('inspect-video-preview');
+    if (videoEl) videoEl.pause();
+    const audioEl = document.getElementById('inspect-audio-preview');
+    if (audioEl) audioEl.pause();
+  }
   document.querySelectorAll('.drawer-tab').forEach(t => t.classList.remove('active'));
   const activeTabEl = document.querySelector(`[data-tab="${tab}"]`);
   if (activeTabEl) activeTabEl.classList.add('active');
@@ -1710,6 +1780,19 @@ window.switchInspectorTab = function(tab) {
   allTabs.forEach(t => {
     const el = document.getElementById(`inspect-tab-${t}`);
     if (el) el.style.display = (t === tab) ? 'block' : 'none';
+  });
+};
+
+window.copyInspectorText = function() {
+  const textEl = document.getElementById('inspect-text-preview');
+  if (!textEl || !textEl.textContent || textEl.textContent.startsWith('Loading text') || textEl.textContent.startsWith('Non-textual')) {
+    toast('No extracted text content available to copy', 'warning');
+    return;
+  }
+  navigator.clipboard.writeText(textEl.textContent).then(() => {
+    toast('Forensic text stream copied to clipboard', 'info');
+  }).catch(() => {
+    toast('Failed to copy to clipboard', 'danger');
   });
 };
 

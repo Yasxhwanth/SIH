@@ -118,6 +118,9 @@ pub fn extract_file(
 
     let mut out = File::create(&out_path)?;
     out.write_all(data)?;
+    drop(out);
+
+    let abs_path = std::fs::canonicalize(&out_path).unwrap_or(out_path);
 
     // SHA-256 for evidential integrity
     let mut hasher = Sha256::new();
@@ -129,13 +132,13 @@ pub fn extract_file(
         &id,
         &format!("Sector LBA 0x{:016x}", hit.offset / 512),
         hit.offset,
-        out_path.clone(),
+        abs_path.clone(),
         &sha256,
     );
 
     Ok(CarvedFile {
         id,
-        path: out_path,
+        path: abs_path,
         offset: hit.offset,
         size: data.len(),
         extension: sig.extension,
