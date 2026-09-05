@@ -860,8 +860,23 @@ window.cancelCarve = async function() {
 };
 
 // ── Carbon Category SVG Icons (16×16 stroke icons) ───────────────────────────
-export function getCategoryIcon(cat, size = 16) {
+export function getCategoryIcon(cat, ext = '', size = 16) {
+  if (typeof ext === 'number') {
+    size = ext;
+    ext = '';
+  }
+  const e = (ext || '').toLowerCase();
   const c = (cat || '').toLowerCase();
+
+  if (e === 'svg') {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cds-cat-icon"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`;
+  }
+  if (e === 'ico') {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cds-cat-icon"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="21"/></svg>`;
+  }
+  if (e === 'pdf') {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cds-cat-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="10" y1="12" x2="14" y2="12"/><line x1="10" y1="16" x2="14" y2="16"/></svg>`;
+  }
   if (c.includes('image') || c.includes('pic') || c.includes('photo')) {
     return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cds-cat-icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
   }
@@ -942,7 +957,7 @@ function appendCarveRow(f, isLive = false) {
     : `<span class="tag-pill ${pillClass}">${f.confidence_label} (${pct}%)</span>`;
 
   // Category SVG icon — Carbon Design System 16×16 stroke icons
-  const catIcon = getCategoryIcon(f.category);
+  const catIcon = getCategoryIcon(f.category, f.extension, 16);
 
   tr.innerHTML = `
     <td class="checkbox-cell">
@@ -1518,7 +1533,13 @@ window.openInspector = async function(fileId) {
   drawer.classList.add('active');
   backdrop.classList.add('active');
 
-  document.getElementById('inspect-icon').innerHTML = `<span class="tag-pill blue mono-font">${file.extension.toUpperCase()}</span>`;
+  const catSvg = getCategoryIcon(file.category, file.extension, 20);
+  document.getElementById('inspect-icon').innerHTML = `
+    <span style="display:inline-flex; align-items:center; gap:6px;">
+      ${catSvg}
+      <span class="tag-pill blue mono-font">${file.extension.toUpperCase()}</span>
+    </span>
+  `;
   document.getElementById('inspect-title').textContent = `${file.extension.toUpperCase()} Artifact (${file.id})`;
   document.getElementById('inspect-subtitle').textContent = `SHA-256: ${file.sha256.slice(0, 24)}…`;
   document.getElementById('inspect-meta-sha256').textContent = file.sha256;
@@ -1589,11 +1610,12 @@ window.openInspector = async function(fileId) {
   const hexBox = document.getElementById('inspect-hex-content');
   hexBox.textContent = 'Streaming raw clusters from medium…';
 
-  let initialTab = 'hex';
+  let initialTab = 'visual';
   const filePath = file.path ? (typeof file.path === 'string' ? file.path : file.path.toString()) : '';
 
   // Reset all preview views
   const imgEl = document.getElementById('inspect-img-preview');
+  const svgBox = document.getElementById('inspect-svg-view');
   const videoEl = document.getElementById('inspect-video-preview');
   const audioEl = document.getElementById('inspect-audio-preview');
   const audioContainer = document.getElementById('inspect-audio-container');
@@ -1606,6 +1628,7 @@ window.openInspector = async function(fileId) {
   const hexOffsetEl = document.getElementById('inspect-hex-offset');
 
   if (imgEl) { imgEl.style.display = 'none'; imgEl.src = ''; }
+  if (svgBox) { svgBox.style.display = 'none'; svgBox.innerHTML = ''; }
   if (videoEl) { videoEl.style.display = 'none'; videoEl.pause(); videoEl.src = ''; }
   if (audioEl) { audioEl.pause(); audioEl.src = ''; }
   if (audioContainer) audioContainer.style.display = 'none';
@@ -1615,21 +1638,78 @@ window.openInspector = async function(fileId) {
   if (textInfoEl) textInfoEl.textContent = 'Encoding: UTF-8 / ASCII Stream';
   if (hexOffsetEl) hexOffsetEl.textContent = `0x${file.offset.toString(16).padStart(8, '0').toUpperCase()}`;
 
+  function renderArtifactVisualCard(f, prev, isCorruptMedia = false) {
+    if (!emptyEl) return;
+    emptyEl.style.display = 'block';
+
+    const iconWrapper = document.getElementById('inspect-type-icon-large');
+    if (iconWrapper) {
+      iconWrapper.innerHTML = getCategoryIcon(f.category, f.extension, 36);
+    }
+
+    const nameEl = document.getElementById('inspect-type-name');
+    if (nameEl) {
+      nameEl.textContent = `${f.extension.toUpperCase()} ${f.category || 'Forensic Artifact'}`;
+    }
+
+    const descEl = document.getElementById('inspect-type-desc');
+    if (descEl) {
+      descEl.textContent = isCorruptMedia
+        ? 'Raw binary fragment (unsupported or damaged media header)'
+        : (f.description || `${f.category} evidence payload extracted from medium`);
+    }
+
+    const catEl = document.getElementById('inspect-type-cat');
+    if (catEl) catEl.textContent = f.category || 'Forensic Stream';
+
+    const sizeEl = document.getElementById('inspect-type-size');
+    if (sizeEl) sizeEl.textContent = formatSize(f.size);
+
+    const lbaEl = document.getElementById('inspect-type-lba');
+    if (lbaEl) lbaEl.textContent = `0x${f.offset.toString(16).padStart(8, '0').toUpperCase()} (LBA ${Math.floor(f.offset / 512)})`;
+
+    const entropyValEl = document.getElementById('inspect-type-entropy');
+    if (entropyValEl) {
+      entropyValEl.textContent = typeof f.entropy === 'number'
+        ? `${f.entropy.toFixed(3)} b/B (${f.entropy > 7.2 ? 'Compressed / Encrypted' : 'Structured Data'})`
+        : 'Calculated on sector stream';
+    }
+
+    const btnGotoText = document.getElementById('inspect-btn-goto-text');
+    if (btnGotoText) {
+      btnGotoText.style.display = (prev && prev.is_text && prev.text_content) ? 'inline-flex' : 'none';
+    }
+  }
+
   try {
     const preview = await invoke('read_file_preview', { path: filePath });
     
     // 1. Visual / Multimedia Preview Handling
     let hasMedia = false;
-    if (preview.is_image && preview.data_base64) {
-      if (imgEl) {
-        imgEl.src = preview.data_base64;
-        imgEl.style.display = 'block';
-        imgEl.onload = () => {
-          if (mediaResEl) mediaResEl.textContent = `Dimensions: ${imgEl.naturalWidth} × ${imgEl.naturalHeight} px`;
-        };
-      }
-      if (mediaTypeEl) mediaTypeEl.textContent = preview.mime_type || 'Image';
+    const isSvg = file.extension.toLowerCase() === 'svg';
+
+    if (isSvg && preview.text_content && svgBox) {
+      // Direct Scalable Vector Graphics injection
+      svgBox.innerHTML = preview.text_content;
+      svgBox.style.display = 'block';
+      if (mediaTypeEl) mediaTypeEl.textContent = 'SVG Vector Graphics';
+      if (mediaResEl) mediaResEl.textContent = 'Scalable Vector Graphics';
       if (mediaInfoEl) mediaInfoEl.style.display = 'flex';
+      hasMedia = true;
+      initialTab = 'visual';
+    } else if (preview.is_image && preview.data_base64 && imgEl) {
+      imgEl.onload = () => {
+        imgEl.style.display = 'block';
+        if (emptyEl) emptyEl.style.display = 'none';
+        if (mediaResEl) mediaResEl.textContent = `Dimensions: ${imgEl.naturalWidth} × ${imgEl.naturalHeight} px`;
+        if (mediaTypeEl) mediaTypeEl.textContent = preview.mime_type || 'Image';
+        if (mediaInfoEl) mediaInfoEl.style.display = 'flex';
+      };
+      imgEl.onerror = () => {
+        imgEl.style.display = 'none';
+        renderArtifactVisualCard(file, preview, true);
+      };
+      imgEl.src = preview.data_base64;
       hasMedia = true;
       initialTab = 'visual';
     } else if (preview.is_video && preview.data_base64) {
@@ -1660,15 +1740,16 @@ window.openInspector = async function(fileId) {
       initialTab = 'visual';
     }
 
-    if (!hasMedia && emptyEl) {
-      emptyEl.style.display = 'block';
+    // For non-renderable media or all other forensic categories: render rich visual card
+    if (!hasMedia) {
+      renderArtifactVisualCard(file, preview, false);
+      initialTab = 'visual';
     }
 
     // 2. Text Stream Handling
     if (preview.is_text && preview.text_content) {
       if (textEl) textEl.textContent = preview.text_content;
       if (textInfoEl) textInfoEl.textContent = `MIME: ${preview.mime_type || 'text/plain'} · Size: ${formatSize(preview.text_content.length)}`;
-      if (!hasMedia) initialTab = 'text';
     } else {
       if (textEl) textEl.textContent = 'Non-textual or binary format. View Raw Hex & ASCII stream.';
       if (textInfoEl) textInfoEl.textContent = 'Non-Textual Binary Stream';
@@ -1679,7 +1760,7 @@ window.openInspector = async function(fileId) {
     renderHexViewer(chunk.bytes, file.offset || chunk.offset || 0);
   } catch(e) {
     if (textEl) textEl.textContent = 'Unable to extract text preview: ' + e;
-    if (emptyEl) emptyEl.style.display = 'block';
+    renderArtifactVisualCard(file, null, true);
     hexBox.textContent = `Raw hex cluster read: Sample preview\n\n${generateSampleHex(file)}`;
   }
 

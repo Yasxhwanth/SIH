@@ -1029,9 +1029,44 @@
             <audio id="inspect-audio-preview" controls style="width: 100%; max-width: 480px;" src=""></audio>
           </div>
 
-          <!-- Empty placeholder -->
-          <div id="inspect-visual-empty" style="color: var(--cds-text-helper); font-size: 12px; text-align: center;">
-            No visual or multimedia stream available for this format.
+          <!-- Dedicated Direct SVG Vector Container -->
+          <div id="inspect-svg-view" style="display:none; width: 100%; max-height: 380px; overflow: auto; text-align: center; padding: 12px;"></div>
+
+          <!-- Rich Forensic Visual Artifact Card for non-raster/non-video formats or fallback -->
+          <div id="inspect-visual-empty" class="inspect-type-preview-card" style="display:none;">
+            <div class="inspect-type-icon-wrapper" id="inspect-type-icon-large"></div>
+            <div class="inspect-type-title" id="inspect-type-name">Forensic Artifact</div>
+            <div class="inspect-type-desc" id="inspect-type-desc">Extracted Evidence Stream</div>
+            
+            <div class="inspect-type-metrics">
+              <div class="metric-row">
+                <span style="color: var(--cds-text-secondary);">Classification:</span>
+                <strong id="inspect-type-cat" style="color: var(--cds-text-primary);">-</strong>
+              </div>
+              <div class="metric-row">
+                <span style="color: var(--cds-text-secondary);">Payload Size:</span>
+                <strong id="inspect-type-size" class="mono-font" style="color: var(--cds-text-primary);">-</strong>
+              </div>
+              <div class="metric-row">
+                <span style="color: var(--cds-text-secondary);">Sector LBA:</span>
+                <span class="mono-font" id="inspect-type-lba" style="color: var(--cds-interactive-01);">-</span>
+              </div>
+              <div class="metric-row">
+                <span style="color: var(--cds-text-secondary);">Shannon Entropy:</span>
+                <span class="mono-font" id="inspect-type-entropy" style="color: var(--cds-text-primary);">-</span>
+              </div>
+            </div>
+
+            <div class="inspect-type-actions">
+              <button class="btn btn-secondary small" id="inspect-btn-goto-text" onclick="switchInspectorTab('text')" style="display:none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                View Text Stream
+              </button>
+              <button class="btn btn-primary small" onclick="switchInspectorTab('hex')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
+                Inspect Raw Hex
+              </button>
+            </div>
           </div>
         </div>
 

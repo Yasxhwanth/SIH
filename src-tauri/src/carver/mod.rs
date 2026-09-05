@@ -214,14 +214,25 @@ pub mod cmd {
             let mut buf = vec![0u8; read_limit];
             f.read_exact(&mut buf).ok();
 
-            // Handle Camera RAW thumbnails (CR2, NEF, ARW, DNG, etc.)
-            let (mime, final_buf) = if matches!(ext.as_str(), "cr2" | "nef" | "arw" | "dng" | "raf" | "rw2" | "tif" | "tiff") {
+            // Handle Camera RAW thumbnails and SVG vector text
+            let mut svg_text_opt: Option<String> = None;
+            let (mime, final_buf) = if ext == "svg" {
+                let mut text = String::from_utf8_lossy(&buf).to_string();
+                if !text.contains("xmlns=") {
+                    if let Some(pos) = text.find("<svg") {
+                        text.insert_str(pos + 4, " xmlns=\"http://www.w3.org/2000/svg\"");
+                    }
+                }
+                let bytes = text.as_bytes().to_vec();
+                svg_text_opt = Some(text);
+                ("image/svg+xml", bytes)
+            } else if matches!(ext.as_str(), "cr2" | "nef" | "arw" | "dng" | "raf" | "rw2" | "tif" | "tiff") {
                 // Search for embedded JPEG thumbnail magic (FF D8 FF)
                 if let Some(pos) = buf.windows(3).position(|w| w == [0xFF, 0xD8, 0xFF]) {
                     let eoi = buf[pos..].windows(2).position(|w| w == [0xFF, 0xD9]).map(|p| pos + p + 2).unwrap_or(buf.len());
-                    ("image/jpeg", &buf[pos..eoi])
+                    ("image/jpeg", buf[pos..eoi].to_vec())
                 } else {
-                    ("image/png", &buf[..])
+                    ("image/png", buf)
                 }
             } else {
                 let m = match ext.as_str() {
@@ -231,21 +242,20 @@ pub mod cmd {
                     "bmp"          => "image/bmp",
                     "webp"         => "image/webp",
                     "ico"          => "image/x-icon",
-                    "svg"          => "image/svg+xml",
                     "avif"         => "image/avif",
                     _              => "image/png",
                 };
-                (m, &buf[..])
+                (m, buf)
             };
 
-            let b64 = format!("data:{};base64,{}", mime, base64_encode(final_buf));
+            let b64 = format!("data:{};base64,{}", mime, base64_encode(&final_buf));
             return Ok(FilePreview {
                 is_image: true,
                 is_video: false,
                 is_audio: false,
-                is_text: false,
+                is_text: svg_text_opt.is_some(),
                 data_base64: Some(b64),
-                text_content: None,
+                text_content: svg_text_opt,
                 mime_type: mime.to_string(),
                 file_size: total_size,
             });

@@ -188,6 +188,16 @@ fn find_end(buf: &[u8], sig: &FileSignature) -> (usize, bool) {
                 return (pos, false);
             }
         }
+        "ico" => {
+            if let Some(pos) = find_ico_boundary(buf) {
+                return (pos, false);
+            }
+        }
+        "svg" => {
+            if let Some(pos) = find_svg_boundary(buf, sig.footer_window) {
+                return (pos, false);
+            }
+        }
         _ => {}
     }
 
@@ -326,6 +336,53 @@ fn find_bmp_boundary(buf: &[u8]) -> Option<usize> {
     } else {
         None
     }
+}
+
+/// Parse Windows Icon (ICO) directory headers to find exact end of image resources
+fn find_ico_boundary(buf: &[u8]) -> Option<usize> {
+    if buf.len() < 6 || buf[0..4] != [0x00, 0x00, 0x01, 0x00] { return None; }
+    let count = u16::from_le_bytes([buf[4], buf[5]]) as usize;
+    if count == 0 || count > 128 { return None; }
+    if buf.len() < 6 + count * 16 { return None; }
+    let mut max_end = 6 + count * 16;
+    for i in 0..count {
+        let entry_offset = 6 + i * 16;
+        let bytes_in_res = u32::from_le_bytes([
+            buf[entry_offset + 8], buf[entry_offset + 9],
+            buf[entry_offset + 10], buf[entry_offset + 11],
+        ]) as usize;
+        let image_offset = u32::from_le_bytes([
+            buf[entry_offset + 12], buf[entry_offset + 13],
+            buf[entry_offset + 14], buf[entry_offset + 15],
+        ]) as usize;
+        let entry_end = image_offset.saturating_add(bytes_in_res);
+        if entry_end > buf.len() { return None; }
+        if entry_end > max_end {
+            max_end = entry_end;
+        }
+    }
+    Some(max_end)
+}
+
+/// Find closing tag for SVG vector images (</svg> or </SVG>)
+fn find_svg_boundary(buf: &[u8], max_window: usize) -> Option<usize> {
+    let search_end = buf.len().min(max_window);
+    let slice = &buf[..search_end];
+    if let Some(pos) = find_last_bytes(slice, b"</svg>") {
+        let mut end = pos + 6;
+        while end < slice.len() && (slice[end] == b'\r' || slice[end] == b'\n' || slice[end] == b' ') {
+            end += 1;
+        }
+        return Some(end);
+    }
+    if let Some(pos) = find_last_bytes(slice, b"</SVG>") {
+        let mut end = pos + 6;
+        while end < slice.len() && (slice[end] == b'\r' || slice[end] == b'\n' || slice[end] == b' ') {
+            end += 1;
+        }
+        return Some(end);
+    }
+    None
 }
 
 /// Find the LAST occurrence of needle in haystack (searching backwards).
