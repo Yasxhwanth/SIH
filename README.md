@@ -14,34 +14,159 @@
 
 ---
 
-## Architecture Overview
+---
+
+## System Architecture
+
+ForensiX employs a multi-tiered, high-throughput systems architecture designed for zero-copy data manipulation, sub-millisecond thread scheduling, and mathematically verifiable forensic integrity.
 
 ```mermaid
 graph TD
-    UI["Frontend: IBM Carbon Design System (Vite + Vanilla JS)"]
-    IPC["Tauri v2 IPC (Zero-Copy Serialization & Event Channels)"]
-    
-    subgraph Rust Backend Core
-        CARVER["Deep Carver Engine (Rayon Multi-Core + memmap2)"]
-        SMARTCARVE["Bi-Fragment Stitcher (Kullback-Leibler Bridge)"]
-        MFT["NTFS $MFT Parser (Resident / Runlist Streams)"]
-        IMAGER["Bit-Stream Imager (1:1 DD/Raw + Fault Map)"]
-        ERASER["Drive Sanitizer (NIST 800-88 / Direct I/O)"]
-        CUSTODY["Custody Ledger (Merkle Root + Ed25519 RFC 8032)"]
+    subgraph Layer1["Layer 1: Presentation & Workstation UI"]
+        UI_SHELL["Carbon Shell & Workstation Panels"]
+        SECTOR_GRID["140-Block Physical LBA Sector Map"]
+        CATEGORY_TRIAGE["Category Triage & Filter Bar (Vector SVGs)"]
+        INSPECTOR["Hex, ASCII & Metadata Stream Inspector"]
+        TOAST["Carbon Alert & Notification Dispatcher"]
     end
 
-    UI <--> IPC
-    IPC <--> CARVER
-    IPC <--> MFT
-    IPC <--> IMAGER
-    IPC <--> ERASER
-    IPC <--> CUSTODY
+    subgraph Layer2["Layer 2: IPC & Event Channel Bus"]
+        TAURI_IPC["Tauri v2 IPC (Zero-Copy Serialization)"]
+        EVENT_BUS["Asynchronous Progress & Stream Channel"]
+        RATE_LIMITER["UI Dispatch Throttle (10 FPS RAF Buffer)"]
+    end
+
+    subgraph Layer3["Layer 3: Forensic Core Engines"]
+        CARVER["Parallel File Carver (102 Rules, 428+ Extensions)"]
+        SMARTCARVE["SmartCarve (Kullback-Leibler Fragment Stitcher)"]
+        MFT_ENGINE["NTFS $MFT Parser & Inode Extractor"]
+        TIMESTOMP["Anti-Forensics Anomaly & Timestomp Analyzer"]
+        IMAGER["Bit-Stream Imager (1:1 RAW/DD + Fault Map)"]
+        SANITIZER["Drive Sanitizer (NIST SP 800-88 / DoD 5220.22-M)"]
+        ENTROPY["Shannon Entropy Calculator (0.0 - 8.0 b/B)"]
+    end
+
+    subgraph Layer4["Layer 4: Cryptographic Trust & Verification"]
+        MERKLE["Binary Merkle Tree Ledger"]
+        ED25519["Ed25519 Digital Signatures (RFC 8032)"]
+        EIP712["EIP-712 Structured Typed Commitment Digest"]
+        PDF_CERT["Section 63 BSA 2023 Statutory Affidavit Engine"]
+    end
+
+    subgraph Layer5["Layer 5: OS Kernel & Hardware Direct I/O"]
+        WIN_DIRECT["WinAPI Direct I/O (FILE_FLAG_NO_BUFFERING)"]
+        MEMMAP["Memory-Mapped Page Cache (memmap2)"]
+        IOCTL["DeviceIoControl (Drive Geometry & Partition Layout)"]
+        HOTPLUG["Storage Media Event Notification (WMI / Device Events)"]
+    end
+
+    UI_SHELL <--> TAURI_IPC
+    SECTOR_GRID <--> RATE_LIMITER
+    CATEGORY_TRIAGE <--> TAURI_IPC
+    INSPECTOR <--> TAURI_IPC
+    TOAST <--> RATE_LIMITER
+
+    TAURI_IPC <--> CARVER
+    TAURI_IPC <--> MFT_ENGINE
+    TAURI_IPC <--> IMAGER
+    TAURI_IPC <--> SANITIZER
+    EVENT_BUS <--> RATE_LIMITER
 
     CARVER --> SMARTCARVE
-    IMAGER --> CUSTODY
-    ERASER --> CUSTODY
-    MFT --> CUSTODY
+    CARVER --> ENTROPY
+    MFT_ENGINE --> TIMESTOMP
+    CARVER --> WIN_DIRECT
+    CARVER --> MEMMAP
+    MFT_ENGINE --> WIN_DIRECT
+    IMAGER --> WIN_DIRECT
+    SANITIZER --> WIN_DIRECT
+    SANITIZER --> IOCTL
+
+    CARVER --> MERKLE
+    MFT_ENGINE --> MERKLE
+    IMAGER --> MERKLE
+    SANITIZER --> MERKLE
+
+    MERKLE --> ED25519
+    MERKLE --> EIP712
+    ED25519 --> PDF_CERT
+    EIP712 --> PDF_CERT
 ```
+
+### Subsystem Data Flow Pipelines
+
+#### 1. Parallel File Carving & SmartCarve Data Flow Pipeline
+```mermaid
+flowchart LR
+    SRC["Target Drive or Image"] --> READ["32 MB Aligned Read Buffer"]
+    READ --> DISPATCH["Rayon Multi-Core Dispatcher"]
+    DISPATCH --> MATCH["102 Signatures Magic Matcher"]
+    MATCH --> BOUNDARY["Format Boundary Extractor"]
+    BOUNDARY --> FRAG_CHECK{"Is Bifurcated?"}
+    FRAG_CHECK -- Yes --> KL_BRIDGE["Kullback-Leibler Divergence Matcher"]
+    KL_BRIDGE --> STITCH["Bi-Fragment Stitcher"]
+    FRAG_CHECK -- No --> CONTIG["Contiguous Stream Assembly"]
+    STITCH --> ENTROPY_CALC["Shannon Entropy Calculator"]
+    CONTIG --> ENTROPY_CALC
+    ENTROPY_CALC --> HASH["SHA-256 Custody Seal"]
+    HASH --> MERKLE_LEAF["Append to Merkle Ledger"]
+    HASH --> BATCH_QUEUE["UI Batch Queue (100ms Interval)"]
+    BATCH_QUEUE --> TABLE["Recovered Artifacts Table"]
+```
+
+#### 2. NTFS $MFT Inode & Timestomp Ingestion Pipeline
+```mermaid
+flowchart TD
+    VOL["NTFS Volume / Raw Disk Image"] --> VBR["Parse VBR & Extract $MFT Cluster"]
+    VBR --> MFT_READ["Read $MFT 1024-byte Inode Records"]
+    MFT_READ --> FIXUP["Validate Multi-Sector Fixup Array"]
+    FIXUP --> ATTR_SI["Parse $STANDARD_INFORMATION"]
+    FIXUP --> ATTR_FN["Parse $FILE_NAME"]
+    FIXUP --> ATTR_DATA["Parse $DATA Attribute"]
+
+    ATTR_SI --> TS_COMPARE{"Compare Timestamps"}
+    ATTR_FN --> TS_COMPARE
+    TS_COMPARE -- Divergence / Truncation --> TS_ALERT["Flag Timestomp Anomaly (Severity Rating)"]
+    TS_COMPARE -- Synchronized --> TS_NORMAL["Mark Normal (Synced)"]
+
+    ATTR_DATA --> DATA_CHECK{"Is Resident?"}
+    DATA_CHECK -- Yes --> RES_EXTRACT["Extract Payload Directly from Record"]
+    DATA_CHECK -- No --> RUNLIST["Decode Cluster Runlist & Stream Extraction"]
+```
+
+#### 3. Media Sanitization & Verification Architecture
+```mermaid
+flowchart TD
+    DEV_SELECT["Select Target Storage Media"] --> LOCK["Lock & Dismount Volume (FSCTL_LOCK_VOLUME)"]
+    LOCK --> GEOMETRY["Query Physical Sectors (IOCTL_DISK_GET_DRIVE_GEOMETRY_EX)"]
+    GEOMETRY --> PATTERN["Select Overwrite Profile (NIST 800-88 / DoD 5220.22-M)"]
+    PATTERN --> OVERWRITE["Unbuffered Direct Physical Write (FILE_FLAG_NO_BUFFERING)"]
+    OVERWRITE --> PASS_LOOP{"All Passes Complete?"}
+    PASS_LOOP -- No --> OVERWRITE
+    PASS_LOOP -- Yes --> READBACK["Full-Surface Readback Sample & Verification"]
+    READBACK --> ENTROPY_TEST["Calculate Residual Entropy (Target: <= 0.0001 b/B)"]
+    ENTROPY_TEST --> AUDIT_RECORD["Log Purge Event in Merkle Custody Tree"]
+    AUDIT_RECORD --> CERT_GEN["Generate Section 63 BSA 2023 Affidavit"]
+```
+
+#### 4. Cryptographic Custody & Legal Certification Architecture
+```mermaid
+flowchart LR
+    ACTION["Forensic Action (Carve / Image / Purge)"] --> HASH_ACTION["SHA-256 Hash Digest"]
+    HASH_ACTION --> TREE["Binary Merkle Tree Chaining"]
+    TREE --> ROOT["Cryptographic Merkle Root"]
+    ROOT --> SIGN["Ed25519 Digital Signature (RFC 8032)"]
+    ROOT --> COMMIT["EIP-712 Typed Structured Commitment"]
+    SIGN --> AFFIDAVIT["Section 63 BSA 2023 Electronic Evidence Certificate"]
+    COMMIT --> AFFIDAVIT
+    AFFIDAVIT --> QR["QR Code Verifier & Printable Affidavit"]
+```
+
+### Concurrency & Memory Management Model
+- **Zero-Copy Memory Mapping**: Regular forensic images (`.raw`, `.img`, `.dd`) are mapped into the virtual address space using `memmap2`, leveraging kernel page tables for zero-copy scanning.
+- **Direct I/O Sector-Aligned Buffering**: Hardware devices (`\\.\PhysicalDriveX` or `\\.\X:`) are read using `FILE_FLAG_NO_BUFFERING | FILE_FLAG_SEQUENTIAL_SCAN` with 4096-byte boundary-aligned 32 MB heap buffers, bypassing Windows filesystem cache overhead.
+- **Work-Stealing Concurrency**: Chunk processing is managed by `rayon`, dynamically distributing 4 MB sector blocks across all available CPU threads without lock contention.
+- **Decoupled Asynchronous UI Streaming**: Progress ticks, sector head movements, and discovered artifacts are dispatched across Tauri IPC event channels throttled to 10 FPS with a 100ms batch flush queue, ensuring 0% UI freeze even when parsing high-density cluster drives.
 
 ---
 
